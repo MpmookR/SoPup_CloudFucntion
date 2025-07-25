@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+   // allow read to /config/*
+    match /config/{document=**} {
+      allow read: if true;
+    }
+
+    // Public read access for dog breeds (no auth required)
+    match /dogBreeds/{document} {
+      allow read: if true;
+    }
+
+    // CURRENT:UI testing only
+    // Allow any signed-in user to read and write any user document
+    // ❗ Switch to secure version before going live
+    match /users/{userId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // CURRENT: Allow all signed-in users to create/edit reviews
+    // This is useful for UI testing and mock review uploads
+    match /dogReviews/{reviewId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Dog data: Allow any signed-in user to write, and everyone to read
+    match /dogs/{dogId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // -------------------------------------------------------------
+    // 🔒 SECURE VERSION (ENABLE BEFORE GOING LIVE)
+    //
+    // match /users/{userId} {
+    //   allow read: if request.auth != null;
+    //   allow write: if request.auth != null && request.auth.uid == userId;
+    // }
+    //
+    // match /dogReviews/{reviewId} {
+    //   allow read: if request.auth != null;
+    //   allow write: if request.auth != null &&
+    //                request.resource.data.reviewerDogId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.dogId;
+    // }
+    // -------------------------------------------------------------
+
+  }
+}
