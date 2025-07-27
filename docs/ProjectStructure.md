@@ -6,11 +6,11 @@
 project-root/
 │
 ├── src/
-│   ├── functions/          # Serverless functions (controllers)
+│   ├── controllers/        # Request handlers (controllers for routing and logic) 
 │   ├── models/             # Data models (e.g., database schemas)
 │   ├── services/           # Business logic and reusable services
 │   ├── middleware/         # Custom middleware (e.g., auth, logging, CORS)
-│   ├── helpers/                # Shared utilities/helpers
+│   ├── helpers/            # Shared utilities/helpers
 │   └── config/             # Configuration files (CORS, DB, etc.)
 │
 ├── tests/                  # Unit and integration tests
