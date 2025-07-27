@@ -1,0 +1,16 @@
+import { DogFilterSettings } from "./MatchFilter";
+
+// this DTO is used to send data for scoring matches between frontend and backend
+// It is used in the match scoring algorithm to determine the best matches for the current dog based on the filters set by the user
+
+export interface MatchScoringDTO {
+  currentDogId: string;
+  filteredDogIds: string[];
+  userLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  filters?: DogFilterSettings; // optional in case you want to test without
+}
+
+

@@ -1,5 +1,4 @@
-import {DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus} from "../models/config";
-
+import {DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus} from "./config";
 
 export interface Dog {
   // Core fields
@@ -25,5 +24,10 @@ export interface Dog {
   isNeutered?: boolean;
   behavior?: DogBehavior;
   healthStatus?: HealthStatus;
+}
+
+export interface ScoredDog {
+  dog: Dog;
+  score: number;
 }
 

@@ -1,4 +1,4 @@
-import { MatchRequest } from "../models/MatchRequest";
+import { MatchRequest } from "../models/Match/MatchRequest";
 import { firestore } from "../config/firebaseAdmin"; 
 
 const COLLECTION = "matchRequests";

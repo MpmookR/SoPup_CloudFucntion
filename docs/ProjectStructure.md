@@ -3,23 +3,16 @@
 ### Project Structure
 
 ```
-project-root/
-│
-├── src/
-│   ├── controllers/        # Request handlers (controllers for routing and logic) 
-│   ├── models/             # Data models (e.g., database schemas)
-│   ├── services/           # Business logic and reusable services
-│   ├── middleware/         # Custom middleware (e.g., auth, logging, CORS)
-│   ├── helpers/            # Shared utilities/helpers
-│   └── config/             # Configuration files (CORS, DB, etc.)
-│
-├── tests/                  # Unit and integration tests
-├── scripts/                # Deployment or utility scripts
-├── .env                    # Environment variables (never commit secrets)
-├── serverless.yml          # Serverless framework config (or equivalent)
-├── package.json            # Project metadata and dependencies
-├── README.md               # Project overview and instructions
-└── docs/                   # Documentation
+functions/
+└── src/
+    ├── controllers/          # Handles routing and delegates to services (e.g., matchRequestController.ts)
+    ├── services/             # Business logic lives here (e.g., scoring, filtering, request creation)
+    ├── repositories/         # Isolated Firestore queries and persistence logic (e.g., dogRepository.ts)
+    ├── models/               # Shared data interfaces and enums
+    ├── middleware/           # Express middleware (e.g., auth.ts)
+    ├── config/               # Firebase admin setup, CORS config
+    └── index.ts              # Entry point for exporting cloud functions
+
 ```
 
 ### Middleware
@@ -51,12 +44,7 @@ project-root/
     };
     ```
 
-### MVC Pattern in Serverless
 
-- **Model:** Define data models in `src/models/`.
-- **View:** In serverless APIs, the "view" is typically the JSON response.
-- **Controller:** Each function in `src/functions/` acts as a controller, handling requests and responses.
-- **Service:** Place business logic in `src/services/` to keep controllers thin and maintainable.
 
 
 
