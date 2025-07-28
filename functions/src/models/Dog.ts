@@ -1,4 +1,5 @@
 import {DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus} from "./config";
+import {Coordinate} from './Coordinate';
 
 export interface Dog {
   // Core fields
@@ -16,6 +17,8 @@ export interface Dog {
   bio?: string;
   isMock?: boolean;
 
+  coordinate: Coordinate;
+
   // Puppy-only (mode === 'puppy')
   coreVaccination1Date?: Date;
   coreVaccination2Date?: Date;
@@ -30,4 +33,6 @@ export interface ScoredDog {
   dog: Dog;
   score: number;
 }
+
+export { DogGenderOption };
 

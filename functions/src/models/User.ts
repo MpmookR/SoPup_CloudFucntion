@@ -1,9 +1,5 @@
 import { UserGenderOption } from '../models/config';
-
-export interface Coordinate {
-  latitude: number;
-  longitude: number;
-}
+import { Coordinate } from './Coordinate';
 
 export interface User {
   id: string;

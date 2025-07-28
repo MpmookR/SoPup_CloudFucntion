@@ -1,4 +1,4 @@
-import { Coordinate } from "../models/User";
+import { Coordinate } from "../models/Coordinate";
 
 /**
  * Calculates the distance between two coordinates using the Haversine formula.

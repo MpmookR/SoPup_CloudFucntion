@@ -1,5 +1,6 @@
 import admin from "../config/firebaseAdmin";
 import { Dog } from "../models/Dog";
+import { Coordinate } from "../models/Coordinate";
 
 const db = admin.firestore();
 const dogsCollection = db.collection("dogs");
@@ -29,3 +30,22 @@ export const getDogsByIds = async (dogIds: string[]): Promise<Dog[]> => {
 // This allows us to handle cases where some dogs might not exist without breaking the overall flow
 // If a dog does not exist, we log a warning and skip it
 
+
+// Fetch user coordinates for multiple dogs
+// This allows us to quickly access user coordinates based on their primary dog ID
+export const getDogCoordinatesByIds = async (dogIds: string[]): Promise<Map<string, Coordinate>> => {
+  const snapshot = await db.collection("dogs")
+    .where("id", "in", dogIds)
+    .get();
+
+  const map = new Map<string, Coordinate>();
+
+  snapshot.forEach(doc => {
+    const dog = doc.data();
+    if (dog.id && dog.coordinate) {
+      map.set(dog.id, dog.coordinate);
+    }
+  });
+
+  return map;
+};

@@ -1,5 +1,3 @@
-## Best Practices: Project Structure, CORS, Middleware, and MVC
-
 ### Project Structure
 
 ```

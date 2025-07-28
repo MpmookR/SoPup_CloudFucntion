@@ -1,4 +1,3 @@
-
 export interface DogFilterSettings {
   maxDistanceInKm: number;
   selectedGender?: string; // "male" | "female" | "any"
@@ -8,4 +7,5 @@ export interface DogFilterSettings {
   selectedTriggerTags: string[];
   selectedHealthStatus?: string;
   neuteredOnly?: boolean;
+  preferredAgeRange?: [number, number]; // [minAge, maxAge]
 }
