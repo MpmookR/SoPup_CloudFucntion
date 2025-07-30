@@ -2,7 +2,10 @@ import { DogGenderOption } from "../models/Dog";
 
 // Helper to calculate age from date of birth
 export function getDogAgeInYears(dob: Date): number {
-  return (new Date().getTime() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24 * 365);
+  return (
+    (new Date().getTime() - new Date(dob).getTime()) /
+    (1000 * 60 * 60 * 24 * 365)
+  );
 }
 
 // Helper to score based on preferred age range filter
@@ -32,6 +35,6 @@ export function getGenderNeuterCompatibilityScore(
   const bothNeutered = currentIsNeutered && candidateIsNeutered;
 
   if (!sameGender && oneOrBothNeutered) return 10; // Opposite gender & at least one neutered
-  if (sameGender && bothNeutered) return 5;        // Same gender & both neutered
-  return 0;                                         // Same gender & at least one intact
+  if (sameGender && bothNeutered) return 5; // Same gender & both neutered
+  return 0; // Same gender & at least one intact
 }

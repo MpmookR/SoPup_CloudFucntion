@@ -1,7 +1,14 @@
 import express, { Request, Response } from "express";
-import { createMatchRequest, updateMatchRequestStatus, getMatchRequests, MatchRequestType, getAllMatchRequests } from "../services/MatchRequestService";
+import {
+  createMatchRequest,
+  updateMatchRequestStatus,
+  getMatchRequests,
+  matchRequestType,
+  getAllMatchRequests,
+} from "../services/matchRequestService";
 import { authenticate } from "../middleware/auth";
 
+// eslint-disable-next-line new-cap
 const router = express.Router();
 console.log("💚 Match Request Routes Loaded");
 
@@ -71,7 +78,7 @@ router.get("/:dogId", async (req: Request, res: Response) => {
   }
 
   try {
-    const requests = await getMatchRequests(dogId, type as MatchRequestType);
+    const requests = await getMatchRequests(dogId, type as matchRequestType);
     return res.status(200).json(requests);
   } catch {
     return res.status(500).json({ error: "Internal server error" });

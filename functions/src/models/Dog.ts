@@ -1,5 +1,5 @@
-import {DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus} from "./config";
-import {Coordinate} from './Coordinate';
+import { DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus } from "./config";
+import { Coordinate } from "./Coordinate";
 
 export interface Dog {
   // Core fields

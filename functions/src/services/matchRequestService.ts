@@ -1,14 +1,17 @@
 import { MatchRequest } from "../models/Match/MatchRequest";
-import { firestore } from "../config/firebaseAdmin"; 
+import { firestore } from "../config/firebaseAdmin";
 
 const COLLECTION = "matchRequests";
 
 // what is `Omit<MatchRequest, "id" | "createdAt">`?
 // It means we are creating a type that has all properties of MatchRequest except for `id` and `createdAt`.
-// This is useful when we want to create a new match request without needing to specify those two fields,
-export const createMatchRequest = async (data: Omit<MatchRequest, "id" | "createdAt">): Promise<MatchRequest> => {
+// This is useful when we want to create a new match request without needing to specify those two fields.
+export const createMatchRequest = async (
+  data: Omit<MatchRequest, "id" | "createdAt">
+): Promise<MatchRequest> => {
   // Check for duplicates
-  const existing = await firestore.collection(COLLECTION)
+  const existing = await firestore
+    .collection(COLLECTION)
     .where("fromUserId", "==", data.fromUserId)
     .where("toDogId", "==", data.toDogId)
     .get();
@@ -30,58 +33,61 @@ export const createMatchRequest = async (data: Omit<MatchRequest, "id" | "create
 
 export const getAllMatchRequests = async (): Promise<MatchRequest[]> => {
   const snapshot = await firestore.collection(COLLECTION).get();
-  return snapshot.docs.map(doc => doc.data() as MatchRequest);
+  return snapshot.docs.map((doc) => doc.data() as MatchRequest);
 };
 
-
 // define the type for match request status
-export type MatchRequestType = "incoming" | "outgoing" | "accepted";
+export type matchRequestType = "incoming" | "outgoing" | "accepted";
 
 // This function retrieves match requests based on the type
 export const getMatchRequests = async (
   dogId: string,
-  type: MatchRequestType
+  type: matchRequestType
 ): Promise<MatchRequest[]> => {
   const collection = firestore.collection(COLLECTION);
 
   switch (type) {
-    // using the dogId to filter match requests in the case of more than one dog being owned by a user
-    case "incoming": { // incoming: cuurrent dog is the recipient
-      const snapshot = await collection
-        .where("toDogId", "==", dogId)
-        .where("status", "==", "pending")
-        .get();
-      return snapshot.docs.map(doc => doc.data() as MatchRequest);
-    }
-    case "outgoing": { // outgoing: current dog is the sender
-      const snapshot = await collection
-        .where("fromDogId", "==", dogId)
-        .where("status", "==", "pending")
-        .get();
-      return snapshot.docs.map(doc => doc.data() as MatchRequest);
-    }
+  // using the dogId to filter match requests in the case of more than one dog being owned by a user
+  case "incoming": {
+    // incoming: current dog is the recipient
+    const snapshot = await collection
+      .where("toDogId", "==", dogId)
+      .where("status", "==", "pending")
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as MatchRequest);
+  }
 
-    case "accepted": {
-      //Fetches match requests where the dog sent the request and it was accepted. 
-      const fromSnap = await collection
-        .where("fromDogId", "==", dogId)
-        .where("status", "==", "accepted")
-        .get();
+  case "outgoing": {
+    // outgoing: current dog is the sender
+    const snapshot = await collection
+      .where("fromDogId", "==", dogId)
+      .where("status", "==", "pending")
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as MatchRequest);
+  }
 
-      //Fetches match requests where the dog received the request and it was accepted.
-      const toSnap = await collection
-        .where("toDogId", "==", dogId)
-        .where("status", "==", "accepted")
-        .get();
+  case "accepted": {
+    // Fetches match requests where the dog sent the request and it was accepted.
+    const fromSnap = await collection
+      .where("fromDogId", "==", dogId)
+      .where("status", "==", "accepted")
+      .get();
 
-      const fromMatches = fromSnap.docs.map(doc => doc.data() as MatchRequest);
-      const toMatches = toSnap.docs.map(doc => doc.data() as MatchRequest);
-      // Combine both arrays to get all accepted match requests for the dog
-      return [...fromMatches, ...toMatches];
-    }
+    // Fetches match requests where the dog received the request and it was accepted.
+    const toSnap = await collection
+      .where("toDogId", "==", dogId)
+      .where("status", "==", "accepted")
+      .get();
 
-    default:
-      throw new Error("Invalid match request type");
+    const fromMatches = fromSnap.docs.map((doc) => doc.data() as MatchRequest);
+    const toMatches = toSnap.docs.map((doc) => doc.data() as MatchRequest);
+
+    // Combine both arrays to get all accepted match requests for the dog
+    return [...fromMatches, ...toMatches];
+  }
+
+  default:
+    throw new Error("Invalid match request type");
   }
 };
 

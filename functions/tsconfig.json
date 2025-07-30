@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
+    "module": "commonjs",             // required by Firebase Functions runtime
+    "target": "es2020",               // modern but safe
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",       // standard resolution
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
-    "rootDir": "src",
+    "outDir": "lib",                  // output directory
+    "rootDir": "src",                 // source directory
     "sourceMap": true,
-    "strict": true,
-    "target": "es2017"
+    "strict": true
   },
   "compileOnSave": true,
   "include": [

@@ -13,7 +13,7 @@
 - `primaryDogId`: string (references Dog)
 - `isMock`: boolean (optional)
 
-## DogProfile
+## Dog
 
 - `id`: string (unique identifier)
 - `name`: string

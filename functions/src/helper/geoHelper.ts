@@ -2,8 +2,12 @@ import { Coordinate } from "../models/Coordinate";
 
 /**
  * Calculates the distance between two coordinates using the Haversine formula.
- * Returns distance in kilometers.
+ *
+ * @param {Coordinate} coord1 - The first coordinate (latitude and longitude).
+ * @param {Coordinate} coord2 - The second coordinate.
+ * @return {number} The distance in kilometers.
  */
+
 export function getDistance(coord1: Coordinate, coord2: Coordinate): number {
   const toRad = (value: number) => (value * Math.PI) / 180;
 

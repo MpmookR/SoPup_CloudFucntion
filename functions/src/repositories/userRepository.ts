@@ -4,9 +4,8 @@ import { User } from "../models/User";
 const db = admin.firestore();
 const COLLECTION = "users";
 
-/**
- * Gets the full User document by Dog ID (via primaryDogId).
- */
+// Gets the full User document by Dog ID (via primaryDogId).
+
 export const getUserByDogId = async (dogId: string): Promise<User | null> => {
   const snapshot = await db
     .collection(COLLECTION)
@@ -37,7 +36,3 @@ export const getUserByDogId = async (dogId: string): Promise<User | null> => {
 
 //   return map;
 // };
-
-
-
-
