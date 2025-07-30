@@ -1,9 +1,16 @@
+## ✍️ To Do:
+Feature:
+# chat
+# meet up schedual 
+# dog review: client ? backend
+
+
+
+## ✅ Done:
 ## auth.ts
 Replace with real Firebase token validation before production
 
-
 ## Update location
-
 On client side, when user updates their location, we need to update the location in the database.
 
 We also need to calculate geohash for the location to be able to use geoqueries. 
