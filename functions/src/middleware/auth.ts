@@ -6,7 +6,11 @@ export const authenticate = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = req.headers.authorization?.split("Bearer ")[1];
+  const authHeader = req.headers.authorization; // Get the Authorization header
+  console.log("🔐 Incoming Auth Header:", authHeader);
+
+  // Extract token from Authorization header
+  const token = authHeader?.split("Bearer ")[1];
 
   if (!token) {
     res.status(401).json({ error: "Missing token" });

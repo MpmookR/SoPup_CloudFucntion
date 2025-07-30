@@ -11,6 +11,7 @@ console.log("💚 Match Scoring Routes Loaded");
 
 // Route: POST /api/matchScoring/score
 router.post("/score", authenticate, async (req: Request, res: Response) => {
+  console.log("✅ POST /matchScoring/score hit");
   try {
     const input: matchScoringDTO = req.body;
     const result = await scoreAndSortMatches(input);
