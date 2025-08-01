@@ -27,14 +27,3 @@ export const api = onRequest(
   },
   app
 );
-
-// import express from "express";
-// import { onRequest } from "firebase-functions/v2/https";
-
-// const app = express();
-
-// app.get("/", (req, res) => {
-//   res.send("Hello from minimal function");
-// });
-
-// export const api = onRequest({ timeoutSeconds: 60 }, app);

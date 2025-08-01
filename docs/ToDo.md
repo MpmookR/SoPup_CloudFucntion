@@ -1,5 +1,10 @@
 ## ✍️ To Do:
 Feature:
+# match request
+it triggers FCM notifications and chat access
+ -   in User model add: pushToken?: string; >> update the frontend as well
+ the token usually stored when the app registers the device
+
 # chat
 # meet up schedual 
 # dog review: client ? backend

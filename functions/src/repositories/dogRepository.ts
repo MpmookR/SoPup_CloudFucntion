@@ -1,6 +1,6 @@
 import admin from "../config/firebaseAdmin";
-import { Dog } from "../models/Dog";
 import { Coordinate } from "../models/Coordinate";
+import { Dog } from "../models/Dog";
 
 const db = admin.firestore();
 const dogsCollection = db.collection("dogs");
@@ -51,3 +51,13 @@ export const getDogCoordinatesByIds = async (
 
   return map;
 };
+
+// Fetch the owner ID of a dog by its ID
+export const getDogOwnerIdById = async (dogId: string): Promise<string | null> => {
+  const doc = await admin.firestore().collection("dogs").doc(dogId).get();
+  if (!doc.exists) return null;
+
+  const dog = doc.data() as Dog;
+  return dog.ownerId ?? null;
+};
+

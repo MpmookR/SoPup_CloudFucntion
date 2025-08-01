@@ -2,9 +2,8 @@ import { matchScoringDTO } from "../models/Match/matchScoringDTO";
 import { ScoredDog } from "../models/Dog";
 import { getDogsByIds, getDogCoordinatesByIds } from "../repositories/dogRepository";
 import { getDistance } from "../helper/geoHelper";
-import { getGenderNeuterCompatibilityScore, getPreferredAgeScore } from "../helper/matchHelper";
+import { getGenderNeuterCompatibilityScore, getPreferredAgeScore, passesHardFilters } from "../helper/matchHelper";
 import { normalizeDob } from "../helper/convertDatesToISO";
-import { passesHardFilters } from "../helper/matchHelper";
 
 /**
  * Scores and sorts dog matches based on the provided MatchScoringDTO.

@@ -43,6 +43,7 @@
 ## MatchRequest
 - `id`: string (unique identifier)
 - `fromUserId`: string (references User)
+- `fromDogId`: string
 - `userAId`: string (references User)
 - `userBId`: string (references User)
 - `createdAt`: datetime

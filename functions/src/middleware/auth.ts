@@ -30,8 +30,10 @@ export const authenticate = async (
   }
 };
 
-// Temporary mock authentication middleware for local development
+// console.log("🚀 Mock auth middleware loaded");
 // Remove this when deploying to production or when Firebase is set up
+// TEMPORARY MOCK FOR LOCAL TESTING
+
 // export const authenticate = async (
 //   req: Request,
 //   res: Response,
@@ -41,6 +43,6 @@ export const authenticate = async (
 //     uid: "UID123Test",
 //     email: "test@example.com",
 //   };
-
+//   console.log("🔐 Mock Authenticated user:");
 //   next();
 // };

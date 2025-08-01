@@ -1,6 +1,5 @@
-import { DogGenderOption } from "../models/Dog";
+import { DogGenderOption, Dog } from "../models/Dog";
 import { DogFilterSettings } from "../models/Match/DogFilterSettings";
-import { Dog } from "../models/Dog";
 import { normalizeDob } from "./convertDatesToISO";
 
 // Helper to calculate age from date of birth

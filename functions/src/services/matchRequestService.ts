@@ -1,5 +1,7 @@
 import { MatchRequest } from "../models/Match/MatchRequest";
 import { firestore } from "../config/firebaseAdmin";
+import { sendPushNotification } from "../services/notificationService";
+import { getPushTokenByUserId } from "../repositories/userRepository";
 
 const COLLECTION = "matchRequests";
 
@@ -20,19 +22,47 @@ export const createMatchRequest = async (
     throw new Error("Match request already exists");
   }
 
+  // Create Firestore doc reference to generate ID once
+  const docRef = firestore.collection(COLLECTION).doc();
+
   const request: MatchRequest = {
     ...data,
-    id: firestore.collection(COLLECTION).doc().id,
+    id: docRef.id,
     createdAt: new Date(),
     status: "pending",
   };
 
-  await firestore.collection(COLLECTION).doc(request.id).set(request);
+  // Save the match request to Firestore
+  await docRef.set(request);
+
+  console.log("✅ Match request created:", request);
+
+  // 🔔 Send notification
+  try {
+    const pushToken = await getPushTokenByUserId(data.toUserId);
+    if (pushToken) {
+      await sendPushNotification(pushToken, {
+        title: "New Match Request 🐶",
+        body: "Someone wants to meet your dog! Check the app now.",
+        data: {
+          type: "match_request",
+          fromDogId: data.fromDogId,
+          toDogId: data.toDogId,
+        },
+      });
+      console.log("✅ Push notification sent to", data.toUserId);
+    } else {
+      console.warn("⚠️ No push token found for user:", data.toUserId);
+    }
+  } catch (error) {
+    console.error("❌ Failed to send FCM notification:", error);
+  }
+
   return request;
 };
 
 export const getAllMatchRequests = async (): Promise<MatchRequest[]> => {
-  const snapshot = await firestore.collection(COLLECTION).get();
+  const snapshot = await firestore.collection(COLLECTION).orderBy("createdAt", "desc").get();
   return snapshot.docs.map((doc) => doc.data() as MatchRequest);
 };
 
@@ -103,5 +133,26 @@ export const updateMatchRequestStatus = async (
     throw new Error("Match request not found");
   }
 
-  await docRef.update({ status: newStatus });
+  await docRef.update({ status: newStatus, updatedAt: new Date() });
+
+  if (newStatus === "accepted") {
+    const request = doc.data() as MatchRequest;
+    const pushToken = await getPushTokenByUserId(request.fromUserId);
+
+    if (pushToken) {
+      await sendPushNotification(pushToken, {
+        title: "Match Accepted 🎉",
+        body: `Your match request to ${request.toDogId} has been accepted!`,
+        data: {
+          type: "match_accepted",
+          dogId: request.toDogId,
+          requestId,
+        },
+      });
+
+      console.log("✅ Push notification sent for accepted match");
+    } else {
+      console.warn("⚠️ No push token found for user:", request.fromUserId);
+    }
+  }
 };
