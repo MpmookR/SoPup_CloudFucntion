@@ -1,4 +1,11 @@
-import { DogGenderOption, SizeOption, DogMode, DogProfileStatus, DogBehavior, HealthStatus } from "./config";
+import {
+  DogGenderOption,
+  SizeOption,
+  DogMode,
+  DogProfileStatus,
+  DogBehavior,
+  HealthStatus,
+} from "./config";
 import { Coordinate } from "./Coordinate";
 
 export interface Dog {
@@ -10,7 +17,7 @@ export interface Dog {
   size: SizeOption;
   weight: number;
   breed: string;
-  dob: Date;
+  dob: Date | string; // Date or ISO string
   imageURLs: string[];
   mode: DogMode; // 'puppy' or 'social'
   profileStatus: DogProfileStatus; // 'incomplete' | 'ready'
@@ -20,8 +27,8 @@ export interface Dog {
   coordinate: Coordinate;
 
   // Puppy-only (mode === 'puppy')
-  coreVaccination1Date?: Date;
-  coreVaccination2Date?: Date;
+  coreVaccination1Date?: Date | string;
+  coreVaccination2Date?: Date | string;
 
   // Social-only (mode === 'social')
   isNeutered?: boolean;
@@ -35,4 +42,3 @@ export interface ScoredDog {
 }
 
 export { DogGenderOption };
-

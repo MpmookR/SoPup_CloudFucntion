@@ -1,14 +1,10 @@
 import { matchScoringDTO } from "../models/Match/matchScoringDTO";
 import { ScoredDog } from "../models/Dog";
-import {
-  getDogsByIds,
-  getDogCoordinatesByIds,
-} from "../repositories/dogRepository";
+import { getDogsByIds, getDogCoordinatesByIds } from "../repositories/dogRepository";
 import { getDistance } from "../helper/geoHelper";
-import {
-  getPreferredAgeScore,
-  getGenderNeuterCompatibilityScore,
-} from "../helper/matchHelper";
+import { getGenderNeuterCompatibilityScore, getPreferredAgeScore } from "../helper/matchHelper";
+import { normalizeDob } from "../helper/convertDatesToISO";
+import { passesHardFilters } from "../helper/matchHelper";
 
 /**
  * Scores and sorts dog matches based on the provided MatchScoringDTO.
@@ -17,27 +13,33 @@ import {
  * @returns A sorted array of ScoredDog objects with their scores.
  */
 
-export const scoreAndSortMatches = async (
-  input: matchScoringDTO
-): Promise<ScoredDog[]> => {
+export const scoreAndSortMatches = async (input: matchScoringDTO): Promise<ScoredDog[]> => {
   const { filteredDogIds, userLocation, filters } = input;
 
-  const DISTANCE_WEIGHT = 10; // Weight for distance scoring
+  const DISTANCE_WEIGHT = 5; // Weight for distance scoring
   const maxDistance = filters?.maxDistanceInKm ?? 60;
+
+  // Log the received filters for debugging
+  console.log("🔍 Received Filters:", JSON.stringify(filters, null, 2));
 
   // Step 1: Fetch current dog and candidate dogs
   const candidates = await getDogsByIds(filteredDogIds);
 
-  // Step 2: Batch fetch user coordinates for all candidate dogs
+  // Step 2: Apply hard filters before scoring
+  const filteredCandidates = candidates.filter((candidate) =>
+    passesHardFilters(candidate, filters)
+  );
+
+  // Step 3: Batch fetch user coordinates for all candidate dogs
   const coordinateMap = await getDogCoordinatesByIds(filteredDogIds);
 
-  const scored: ScoredDog[] = candidates.map((candidate) => {
+  // step 4: score and sort
+  const scored: ScoredDog[] = filteredCandidates.map((candidate) => {
     let filterScore = 0;
 
     // Apply filter-based scoring
     if (filters) {
       // 1. Compatibility logic
-      // if intact only is selected and candidate is not neutered
       filterScore += getGenderNeuterCompatibilityScore(
         input.currentDogId?.gender,
         input.currentDogId?.isNeutered,
@@ -46,10 +48,8 @@ export const scoreAndSortMatches = async (
       );
 
       // 2. Direct filters
-      if (
-        filters.selectedGender &&
-        candidate.gender === filters.selectedGender
-      ) {
+      // Check if candidate matches the filters
+      if (filters.selectedGender && candidate.gender === filters.selectedGender) {
         filterScore += 5;
       }
       if (filters.neuteredOnly && candidate.isNeutered) {
@@ -59,9 +59,7 @@ export const scoreAndSortMatches = async (
         filterScore += 3;
       }
       if (
-        filters.selectedPlayStyleTags?.some((tag) =>
-          candidate.behavior?.playStyles?.includes(tag)
-        )
+        filters.selectedPlayStyleTags?.some((tag) => candidate.behavior?.playStyles?.includes(tag))
       ) {
         filterScore += 5;
       }
@@ -72,57 +70,58 @@ export const scoreAndSortMatches = async (
       ) {
         filterScore += 3;
       }
-      if (
-        filters.selectedHealthStatus &&
-        candidate.healthStatus === filters.selectedHealthStatus
-      ) {
+      if (filters.selectedHealthStatus && candidate.healthStatus === filters.selectedHealthStatus) {
         filterScore += 1;
       }
 
       // 3. Risk mitigation
       // Penalise for having any filtered trigger
+      console.log(`🐾 ${candidate.name}'s triggers:`, candidate.behavior?.triggersAndSensitivities);
       if (
         filters.selectedTriggerTags?.some((tag) =>
           candidate.behavior?.triggersAndSensitivities?.includes(tag)
         )
       ) {
+        console.log(`🚨 Trigger match for ${candidate.name}, applying penalty`);
         filterScore -= 5;
       }
 
       // 4. Age filter (hard preference)
       // If preferred age is matched, score 3 points
       if (filters.preferredAgeRange) {
-        filterScore += getPreferredAgeScore(
-          candidate.dob,
-          filters.preferredAgeRange
-        );
+        // use normalizeDob to handle different date formats
+        // and ensure dob is a Date object
+        const normalizedDob = normalizeDob(candidate.dob);
+        filterScore += getPreferredAgeScore(normalizedDob, filters.preferredAgeRange);
       }
     }
     // Add location scoring
-    let locationScore = 0; //
+    let locationScore = 0;
     if (userLocation) {
       const candidateCoordinate = coordinateMap.get(candidate.id);
       if (candidateCoordinate) {
         const distance = getDistance(userLocation, candidateCoordinate);
         if (distance <= maxDistance) {
-          locationScore = Math.max(
-            0,
-            (maxDistance - distance) * DISTANCE_WEIGHT
-          );
+          locationScore = Math.max(0, (maxDistance - distance) * DISTANCE_WEIGHT);
         }
       }
     }
-
     // example: if maxDistance is 60km and distance is 30km, score will be 150
     // (maxDistance - distance) * DISTANCE_WEIGHT >>  (60 - 30) * 5 = 150
     // if maxDistance is 60km and distance is 60km, score will be 0
 
+    const totalScore = filterScore + locationScore;
+    console.log(
+      `🐶 Scoring dog ${candidate.name}, Filter Score = ${filterScore}, Location Score = ${locationScore}`
+    );
+    console.log(`⭐️ Total Score for ${candidate.name}: ${totalScore}`);
+
     return {
       dog: candidate,
-      score: filterScore + locationScore,
+      score: totalScore,
     };
   });
 
   // Step 3: sorts the array of ScoredDog objects in descending order of their score
-  return scored.sort((a, b) => b.score - a.score);
+  return scored.filter((dog) => dog.score > 0).sort((a, b) => b.score - a.score);
 };
