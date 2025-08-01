@@ -7,6 +7,7 @@ import {
   getAllMatchRequests,
 } from "../services/matchRequestService";
 import { authenticate } from "../middleware/auth";
+import { convertDatesToISO } from "../helper/convertDatesToISO";
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -23,7 +24,7 @@ router.get("/", authenticate, (req: Request, res: Response) => {
 router.get("/all", authenticate, async (req: Request, res: Response) => {
   try {
     const requests = await getAllMatchRequests();
-    return res.status(200).json(requests);
+    return res.status(200).json(convertDatesToISO(requests));
   } catch (err) {
     console.error("❌ Failed to get all match requests:", err);
     return res.status(500).json({ error: "Internal server error" });
@@ -35,7 +36,7 @@ router.post("/send", authenticate, async (req: Request, res: Response) => {
   console.log("✅ Route reached");
   try {
     const user = (req as any).user;
-    const { fromDogId, toUserId, toDogId } = req.body;
+    const { fromDogId, toUserId, toDogId, message } = req.body;
 
     if (!fromDogId || !toUserId || !toDogId) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -46,10 +47,11 @@ router.post("/send", authenticate, async (req: Request, res: Response) => {
       fromDogId,
       toUserId,
       toDogId,
+      message,
       status: "pending",
     });
 
-    return res.status(201).json(result);
+    return res.status(201).json(convertDatesToISO(result));
   } catch (err: any) {
     console.error("❌ Failed to send match request:", err);
     return res.status(400).json({ error: err.message });
@@ -88,7 +90,7 @@ router.get("/:dogId", async (req: Request, res: Response) => {
 
   try {
     const requests = await getMatchRequests(dogId, type as matchRequestType);
-    return res.status(200).json(requests);
+    return res.status(200).json(convertDatesToISO(requests));
   } catch (err) {
     console.error(`❌ Failed to fetch match requests for dog ${dogId}:`, err);
     return res.status(500).json({ error: "Internal server error" });
