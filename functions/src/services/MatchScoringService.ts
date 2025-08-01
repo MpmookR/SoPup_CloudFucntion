@@ -77,13 +77,24 @@ export const scoreAndSortMatches = async (input: matchScoringDTO): Promise<Score
       // 3. Risk mitigation
       // Penalise for having any filtered trigger
       console.log(`🐾 ${candidate.name}'s triggers:`, candidate.behavior?.triggersAndSensitivities);
+
       if (
-        filters.selectedTriggerTags?.some((tag) =>
-          candidate.behavior?.triggersAndSensitivities?.includes(tag)
-        )
+        // the value is an array and the filter is also an array
+        // using Array.isArray to ensure we don't get errors if they are not arrays
+        Array.isArray(candidate.behavior?.triggersAndSensitivities) &&
+        Array.isArray(filters.selectedTriggerTags)
       ) {
-        console.log(`🚨 Trigger match for ${candidate.name}, applying penalty`);
-        filterScore -= 5;
+        const matchedTriggers = filters.selectedTriggerTags.filter((tag) =>
+          candidate.behavior!.triggersAndSensitivities!.includes(tag)
+        );
+
+        if (matchedTriggers.length > 0) {
+          const penalty = matchedTriggers.length * 5;
+          console.log(
+            `🚨 Trigger match for ${candidate.name}: [${matchedTriggers.join(", ")}], applying penalty of -${penalty}`
+          );
+          filterScore -= penalty;
+        }
       }
 
       // 4. Age filter (hard preference)
