@@ -156,3 +156,19 @@ export const updateMatchRequestStatus = async (
     }
   }
 };
+
+// Check if a pending match request already exists between two dogs
+export const checkIfMatchRequestExists = async (
+  fromDogId: string,
+  toDogId: string
+): Promise<boolean> => {
+  const snapshot = await firestore
+    .collection(COLLECTION)
+    .where("fromDogId", "==", fromDogId)
+    .where("toDogId", "==", toDogId)
+    .where("status", "==", "pending")
+    .limit(1)
+    .get();
+
+  return !snapshot.empty;
+};

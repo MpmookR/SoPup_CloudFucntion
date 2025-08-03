@@ -5,6 +5,7 @@ import {
   getMatchRequests,
   matchRequestType,
   getAllMatchRequests,
+  checkIfMatchRequestExists,
 } from "../services/matchRequestService";
 import { authenticate } from "../middleware/auth";
 import { convertDatesToISO } from "../helper/convertDatesToISO";
@@ -79,6 +80,24 @@ router.put("/:id/status", async (req: Request, res: Response) => {
   }
 });
 
+// GET /matchRequest/status?fromDogId=XXX&toDogId=YYY
+router.get("/status", authenticate, async (req: Request, res: Response) => {
+  const { fromDogId, toDogId } = req.query;
+
+  if (!fromDogId || !toDogId) {
+    return res.status(400).json({ error: "Missing fromDogId or toDogId" });
+  }
+
+  try {
+    const exists = await checkIfMatchRequestExists(fromDogId as string, toDogId as string);
+
+    return res.status(200).json({ exists });
+  } catch (err) {
+    console.error("❌ Failed to check match request status:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // api/matchRequest/:dogId?type=incoming|outgoing|accepted
 router.get("/:dogId", async (req: Request, res: Response) => {
   const { dogId } = req.params;
@@ -96,5 +115,6 @@ router.get("/:dogId", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 export default router;
