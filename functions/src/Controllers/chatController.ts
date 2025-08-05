@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { createChatRoom } from "../services/chatService";
 import { authenticate } from "../middleware/auth";
 import { MessageType } from "../models/config";
-import { sendMessage } from "../services/chatService"; 
+import { sendMessage, getMessagesForChatRoom, getChatRoomsForUser } from "../services/chatService";
 import { convertDatesToISO } from "../helper/convertDatesToISO";
 
 // eslint-disable-next-line new-cap
@@ -31,13 +31,7 @@ router.post("/createRoom", authenticate, async (req: Request, res: Response) => 
 console.log("✅ sendMessage Route reached");
 router.post("/sendMessage", authenticate, async (req: Request, res: Response) => {
   const senderId = (req as any).user?.uid;
-  const {
-    chatRoomId,
-    text,
-    receiverId,
-    senderDogId,
-    receiverDogId
-  } = req.body;
+  const { chatRoomId, text, receiverId, senderDogId, receiverDogId } = req.body;
 
   if (!chatRoomId || !text || !receiverId || !senderDogId || !receiverDogId) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -60,5 +54,40 @@ router.post("/sendMessage", authenticate, async (req: Request, res: Response) =>
   }
 });
 
+// GET /chat/:chatRoomId/messages
+console.log("✅ Fetch Messages Route reached");
+router.get("/:chatRoomId/messages", authenticate, async (req: Request, res: Response) => {
+  const { chatRoomId } = req.params;
+
+  if (!chatRoomId) {
+    return res.status(400).json({ error: "Missing chatRoomId" });
+  }
+
+  try {
+    const messages = await getMessagesForChatRoom(chatRoomId);
+    return res.status(200).json(convertDatesToISO(messages));
+  } catch (error) {
+    console.error("❌ Failed to fetch messages:", error);
+    return res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
+// GET /chat/rooms — get all chatrooms
+console.log("✅ Fetch Chat Rooms Route reached");
+router.get("/rooms", authenticate, async (req: Request, res: Response) => {
+  const userId = (req as any).user?.uid;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const rooms = await getChatRoomsForUser(userId);
+    return res.status(200).json(convertDatesToISO(rooms));
+  } catch (error) {
+    console.error("❌ Failed to fetch chat rooms:", error);
+    return res.status(500).json({ error: "Failed to fetch chat rooms" });
+  }
+});
 
 export default router;

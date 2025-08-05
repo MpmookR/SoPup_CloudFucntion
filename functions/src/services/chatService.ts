@@ -5,6 +5,7 @@ import { sendPushNotification } from "./notificationService";
 import { getAcceptedMatchBetween } from "../repositories/matchRequestRepository";
 import { Message } from "../models/Chat/Message";
 import { MessageType } from "../models/config";
+import { ChatRoom } from "../models/Chat/ChatRoom";
 
 const db = admin.firestore();
 // 1. Create a chatroom
@@ -37,6 +38,9 @@ export const createChatRoom = async (
   }
 
   const isPuppyMode = fromDog.mode === "puppy" || toDog.mode === "puppy";
+  const introText = isPuppyMode
+    ? "Please be informed that Meet-Up is disabled because your match is currently in Puppy Mode.\nPuppies under 12 weeks should avoid in-person interactions until fully vaccinated. You’ll be able to schedule meet-ups once both dogs are in Social Mode."
+    : "✨Matched!\n You can now chat and plan a playdate. Remember: Positive social interactions build confidence and reduce reactivity.";
 
   // 3. Create the chat room
   await chatRoomRef.set({
@@ -45,6 +49,12 @@ export const createChatRoom = async (
     userIds: [fromUserId, toUserId],
     createdAt: new Date(),
     isPuppyMode,
+    lastMessage: {
+      text: introText,
+      timestamp: new Date(),
+      senderId: "system",
+      messageType: "system",
+    },
   });
 
   // 4. If Puppy Mode – send system message
@@ -52,9 +62,7 @@ export const createChatRoom = async (
 
   const systemMessage = {
     id: systemMessageId,
-    text: isPuppyMode
-      ? "Please be informed that Meet-Up is disabled because your match is currently in Puppy Mode.\nPuppies under 12 weeks should avoid in-person interactions until fully vaccinated. You’ll be able to schedule meet-ups once both dogs are in Social Mode."
-      : "✨Matched!\n You can now chat and plan a playdate. Remember: Positive social interactions build confidence and reduce reactivity.",
+    text: introText,
     senderId: "system",
     receiverId: toUserId,
     senderDogId: fromDogId,
@@ -80,12 +88,12 @@ export const createChatRoom = async (
   return chatRoomId;
 };
 
+// 2. Send a message in a chatroom
 export const sendMessage = async (
   chatRoomId: string,
   messageInput: Omit<Message, "id" | "timestamp">
 ): Promise<Message> => {
   const messageId = db.collection("chatRooms").doc().id;
-
   const message: Message = {
     ...messageInput,
     id: messageId,
@@ -126,10 +134,38 @@ export const sendMessage = async (
   return message;
 };
 
-// 1. Create a chatroom -done
-// 2. send a message in a chatroom
-// 3. Fetch all Messages
+// 3. Fetch all messages in a chatroom
+export const getMessagesForChatRoom = async (chatRoomId: string): Promise<Message[]> => {
+  const snapshot = await db
+    .collection("chatRooms")
+    .doc(chatRoomId)
+    .collection("messages")
+    .orderBy("timestamp", "asc")
+    .get();
+  console.log("✅ Messages fetched for chat room:", chatRoomId);
+  return snapshot.docs.map((doc) => doc.data() as Message);
+};
 
-// 4. send meet-up request > forward to chatroom
-// 5. update meet-up request status - reject/accept > forward to chatroom
-// 6. update accepted meet-up details(date + cancel): > forward to chatroom
+// 4. Fetch all chatrooms for a user
+// This function retrieves all chat rooms that a user is part of, ordered by last message timestamp
+export const getChatRoomsForUser = async (userId: string) => {
+  const snapshot = await db
+    .collection("chatRooms")
+    .where("userIds", "array-contains", userId)
+    .orderBy("lastMessage.timestamp", "desc")
+    .get();
+
+  console.log("✅ Chat rooms fetched for user:", userId);
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as ChatRoom[];
+};
+
+// 1. Create a chatroom -done
+// 2. send a message in a chatroom - done
+// 3. Fetch all Messages - done
+// 4. Fetch all chatrooms for a user - done
+
+
