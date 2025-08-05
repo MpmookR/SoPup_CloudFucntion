@@ -5,6 +5,8 @@ import corsConfig from "./config/cors";
 
 import matchRequestRoutes from "./controllers/matchRequestController";
 import matchScoringRoutes from "./controllers/matchScoringController";
+import chatRoutes from "./controllers/chatController";
+import devRoutes from "./controllers/devController";
 
 console.log("🔥 Starting full Express app...");
 
@@ -18,6 +20,8 @@ console.log("✅ All middleware and routes registered.");
 // Routes
 app.use("/matchRequest", matchRequestRoutes);
 app.use("/matchScoring", matchScoringRoutes);
+app.use("/chat", chatRoutes);
+app.use("/dev", devRoutes);
 
 // Export Cloud Function (2nd Gen)
 export const api = onRequest(

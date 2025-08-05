@@ -83,3 +83,17 @@ export interface HealthStatus {
   fleaTreatmentDate?: Date;
   wormingTreatmentDate?: Date;
 }
+
+// Chat
+export enum MessageType {
+  text = "text",
+  meetupRequest = "meetupRequest",
+  system = "system"
+}
+
+export enum MeetupStatus {
+  pending = "pending",
+  upcoming = "upcoming",
+  declined = "declined",
+  completed = "completed"
+}
