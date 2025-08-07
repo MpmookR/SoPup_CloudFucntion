@@ -1,5 +1,4 @@
 import { MessageType } from "../config";
-import { MeetupRequest } from "./MeetupRequest";
 
 export interface Message {
   id: string;
@@ -10,5 +9,7 @@ export interface Message {
   receiverDogId: string;
   timestamp: Date;
   messageType: MessageType;
-  meetupRequest?: MeetupRequest;
+  meetupId?: string; // Optional for non-meetup messages
 }
+
+

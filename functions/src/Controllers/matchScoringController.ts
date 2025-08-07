@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { scoreAndSortMatches } from "../services/matchScoringService";
-import { matchScoringDTO } from "../models/Match/matchScoringDTO";
+import { matchScoringDTO } from "../models/DTO/matchScoringDTO";
 import { authenticate } from "../middleware/auth";
 import { convertDatesToISO } from "../helper/convertDatesToISO";
 

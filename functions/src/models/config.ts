@@ -84,16 +84,17 @@ export interface HealthStatus {
   wormingTreatmentDate?: Date;
 }
 
-// Chat
+// for the message type in chat
 export enum MessageType {
-  text = "text",
-  meetupRequest = "meetupRequest",
-  system = "system"
+  text = "text", // plain text message
+  meetupRequest = "meetupRequest", // message containing a meetup request
+  system = "system" // system-generated messages (e.g., match confirmation, puppy mode warning)
 }
 
 export enum MeetupStatus {
-  pending = "pending",
-  upcoming = "upcoming",
-  declined = "declined",
-  completed = "completed"
+  pending = "pending", 
+  upcoming = "accepted",
+  declined = "rejected",
+  completed = "completed",
+  cancelled = "cancelled",
 }

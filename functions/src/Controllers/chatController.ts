@@ -55,7 +55,7 @@ router.post("/sendMessage", authenticate, async (req: Request, res: Response) =>
 });
 
 // GET /chat/:chatRoomId/messages
-console.log("✅ Fetch Messages Route reached");
+console.log("✅ Fetch All Messages Route reached");
 router.get("/:chatRoomId/messages", authenticate, async (req: Request, res: Response) => {
   const { chatRoomId } = req.params;
 

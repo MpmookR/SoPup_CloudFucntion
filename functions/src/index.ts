@@ -6,7 +6,11 @@ import corsConfig from "./config/cors";
 import matchRequestRoutes from "./controllers/matchRequestController";
 import matchScoringRoutes from "./controllers/matchScoringController";
 import chatRoutes from "./controllers/chatController";
+import meetupRoutes from "./controllers/meetupController";
+
+//dev testing routes
 import devRoutes from "./controllers/devController";
+
 
 console.log("🔥 Starting full Express app...");
 
@@ -21,6 +25,9 @@ console.log("✅ All middleware and routes registered.");
 app.use("/matchRequest", matchRequestRoutes);
 app.use("/matchScoring", matchScoringRoutes);
 app.use("/chat", chatRoutes);
+app.use("/meetups", meetupRoutes);
+
+//dev testing routes
 app.use("/dev", devRoutes);
 
 // Export Cloud Function (2nd Gen)

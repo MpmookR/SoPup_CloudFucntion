@@ -1,4 +1,4 @@
-import { matchScoringDTO } from "../models/Match/matchScoringDTO";
+import { matchScoringDTO } from "../models/DTO/matchScoringDTO";
 import { ScoredDog } from "../models/Dog";
 import { getDogsByIds, getDogCoordinatesByIds } from "../repositories/dogRepository";
 import { getDistance } from "../helper/geoHelper";
