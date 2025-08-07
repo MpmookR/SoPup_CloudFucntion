@@ -11,9 +11,6 @@ if (process.env.FUNCTIONS_EMULATOR === "true") {
   process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
 }
 
-const db = admin.firestore();
-
 console.log("✅ Express app setup complete — exporting Firebase function");
 
 export default admin;
-export const firestore = db;

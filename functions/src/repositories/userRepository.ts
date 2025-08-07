@@ -30,3 +30,26 @@ export const getPushTokenByUserId = async (userId: string): Promise<string | nul
   const user = doc.data() as User;
   return user.pushToken ?? null;
 };
+
+// to write review stats to the user document
+export const updateUserReviewStats = async (
+  userId: string,
+  stats: { averageRating: number; reviewCount: number }
+): Promise<void> => {
+  await usersCollection.doc(userId).update(stats);
+};
+
+// Fetches the review stats for a user
+export const getUserReviewStats = async (
+  userId: string
+): Promise<{ averageRating: number; reviewCount: number } | null> => {
+  const doc = await usersCollection.doc(userId).get();
+  if (!doc.exists) return null;
+
+  const data = doc.data();
+  return {
+    averageRating: data?.averageRating ?? 0,
+    reviewCount: data?.reviewCount ?? 0,
+  };
+};
+

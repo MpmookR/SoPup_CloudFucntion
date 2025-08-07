@@ -103,6 +103,50 @@ export const seedMockData = async () => {
     },
     createdAt: new Date(),
   });
+  // Meetups
+const now = new Date();
+const pastDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+const futureDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days in future
 
-  console.log("✅ Seeded users, dogs, match, chat room, messages, and meetups");
+await db.collection("meetups").doc("meetup_past_123_456").set({
+  id: "meetup_past_123_456",
+  chatRoomId: "dog123_dog456",
+  senderId: "user123",
+  senderDogId: "dog123",
+  receiverId: "user456",
+  receiverDogId: "dog456",
+  proposedTime: pastDate,
+  locationName: "Central Park",
+  locationCoordinate: {
+    latitude: 40.785091,
+    longitude: -73.968285,
+  },
+  meetUpMessage: "Let’s go for a walk 🐾",
+  status: "accepted",
+  createdAt: pastDate,
+  updatedAt: pastDate,
+});
+
+await db.collection("meetups").doc("meetup_upcoming_123_456").set({
+  id: "meetup_upcoming_123_456",
+  chatRoomId: "dog123_dog456",
+  senderId: "user123",
+  senderDogId: "dog123",
+  receiverId: "user456",
+  receiverDogId: "dog456",
+  proposedTime: futureDate,
+  locationName: "Hyde Park",
+  locationCoordinate: {
+    latitude: 51.507268,
+    longitude: -0.165730,
+  },
+  meetUpMessage: "Shall we play fetch?",
+  status: "accepted",
+  createdAt: now,
+  updatedAt: now,
+});
+
+  console.log("✅ Seeded users, dogs, match, chat room, messages, meetups");
+  console.log("✅ Included one past and one upcoming meetup for review testing");
+
 };

@@ -1,5 +1,5 @@
 import { MatchRequest } from "../models/Match/MatchRequest";
-import { firestore } from "../config/firebaseAdmin";
+import admin from "../config/firebaseAdmin";
 import { sendPushNotification } from "../services/notificationService";
 import { getPushTokenByUserId } from "../repositories/userRepository";
 
@@ -12,7 +12,7 @@ export const createMatchRequest = async (
   data: Omit<MatchRequest, "id" | "createdAt">
 ): Promise<MatchRequest> => {
   // Check for duplicates
-  const existing = await firestore
+  const existing = await admin.firestore()
     .collection(COLLECTION)
     .where("fromUserId", "==", data.fromUserId)
     .where("toDogId", "==", data.toDogId)
@@ -23,7 +23,7 @@ export const createMatchRequest = async (
   }
 
   // Create Firestore doc reference to generate ID once
-  const docRef = firestore.collection(COLLECTION).doc();
+  const docRef = admin.firestore().collection(COLLECTION).doc();
 
   const request: MatchRequest = {
     ...data,
@@ -62,7 +62,7 @@ export const createMatchRequest = async (
 };
 
 export const getAllMatchRequests = async (): Promise<MatchRequest[]> => {
-  const snapshot = await firestore.collection(COLLECTION).orderBy("createdAt", "desc").get();
+  const snapshot = await admin.firestore().collection(COLLECTION).orderBy("createdAt", "desc").get();
   return snapshot.docs.map((doc) => doc.data() as MatchRequest);
 };
 
@@ -74,7 +74,7 @@ export const getMatchRequests = async (
   dogId: string,
   type: matchRequestType
 ): Promise<MatchRequest[]> => {
-  const collection = firestore.collection(COLLECTION);
+  const collection = admin.firestore().collection(COLLECTION);
 
   switch (type) {
   // using the dogId to filter match requests in the case of more than one dog being owned by a user
@@ -126,7 +126,7 @@ export const updateMatchRequestStatus = async (
   requestId: string,
   newStatus: "accepted" | "rejected"
 ): Promise<void> => {
-  const docRef = firestore.collection(COLLECTION).doc(requestId);
+  const docRef = admin.firestore().collection(COLLECTION).doc(requestId);
 
   const doc = await docRef.get();
   if (!doc.exists) {
@@ -162,7 +162,7 @@ export const checkIfMatchRequestExists = async (
   fromDogId: string,
   toDogId: string
 ): Promise<boolean> => {
-  const snapshot = await firestore
+  const snapshot = await admin.firestore()
     .collection(COLLECTION)
     .where("fromDogId", "==", fromDogId)
     .where("toDogId", "==", toDogId)

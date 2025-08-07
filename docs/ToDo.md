@@ -1,29 +1,8 @@
 ## ✍️ To Do:
-Feature:
-# match request
-it triggers FCM notifications and chat access
- -   in User model add: pushToken?: string; >> update the frontend as well
- the token usually stored when the app registers the device
-
-# chat
-# meet up schedual 
-# dog review: client ? backend
-
-
-
-## ✅ Done:
-## auth.ts
-Replace with real Firebase token validation before production
-
-## Update location
-On client side, when user updates their location, we need to update the location in the database.
-
-We also need to calculate geohash for the location to be able to use geoqueries. 
-Docs: https://firebase.google.com/docs/firestore/solutions/geoqueries
-
-We also need to copy localtion and geohash to all the dogs user has.
-
-All updates should be done in transaction. Docs: https://firebase.google.com/docs/firestore/manage-data/transactions
-
-## Client side - create struct and DTO for matchMaking
-Build the struct and request payload to support the score, sort and filter matchMarking logic
+Review
+    1. To be able to post review:
+        1. The meetup status is "accepted".
+        2. current day must older than the meet up date and time
+        3. The reviewer hasn't already submitted a review for this meetup.
+    2. The user cant review themselves
+    3. review must be able to get average score per user

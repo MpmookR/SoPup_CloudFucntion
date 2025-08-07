@@ -1,7 +1,6 @@
 import { Coordinate } from "../Coordinate";
 import { MeetupStatus } from "../../models/config";
 
-// this model is for firestore documents
 export interface MeetupRequest {
   id: string;
   chatRoomId: string;

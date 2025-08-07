@@ -7,6 +7,7 @@ import matchRequestRoutes from "./controllers/matchRequestController";
 import matchScoringRoutes from "./controllers/matchScoringController";
 import chatRoutes from "./controllers/chatController";
 import meetupRoutes from "./controllers/meetupController";
+import reviewRoutes from "./controllers/reviewController";
 
 //dev testing routes
 import devRoutes from "./controllers/devController";
@@ -26,6 +27,7 @@ app.use("/matchRequest", matchRequestRoutes);
 app.use("/matchScoring", matchScoringRoutes);
 app.use("/chat", chatRoutes);
 app.use("/meetups", meetupRoutes);
+app.use("/reviews", reviewRoutes);
 
 //dev testing routes
 app.use("/dev", devRoutes);

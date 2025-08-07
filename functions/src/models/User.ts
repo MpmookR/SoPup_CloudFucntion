@@ -14,4 +14,7 @@ export interface User {
   primaryDogId: string;
   isMock?: boolean;
   pushToken?: string; // FCM token
+
+  averageRating: number;   
+  reviewCount: number;     
 }

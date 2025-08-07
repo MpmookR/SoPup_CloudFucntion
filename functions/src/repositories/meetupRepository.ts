@@ -31,3 +31,10 @@ export const getMeetupsForUser = async (userId: string): Promise<MeetupRequest[]
 
   return meetups;
 };
+
+// Get a single meetup by its ID
+export const getMeetupById = async (meetupId: string): Promise<MeetupRequest | null> => {
+  const doc = await meetupCollection.doc(meetupId).get();
+  if (!doc.exists) return null;
+  return doc.data() as MeetupRequest;
+};
