@@ -24,10 +24,10 @@ export const getMeetupsForUser = async (userId: string): Promise<MeetupRequest[]
   const meetups: MeetupRequest[] = [];
 
   const senderSnap = await meetupCollection.where("senderId", "==", userId).get();
-  senderSnap.forEach(doc => meetups.push(doc.data() as MeetupRequest));
+  senderSnap.forEach((doc) => meetups.push(doc.data() as MeetupRequest));
 
   const receiverSnap = await meetupCollection.where("receiverId", "==", userId).get();
-  receiverSnap.forEach(doc => meetups.push(doc.data() as MeetupRequest));
+  receiverSnap.forEach((doc) => meetups.push(doc.data() as MeetupRequest));
 
   return meetups;
 };

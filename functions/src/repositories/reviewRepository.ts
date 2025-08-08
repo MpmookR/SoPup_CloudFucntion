@@ -22,5 +22,5 @@ export const getReviewsByMeetupAndReviewer = async (meetupId: string, reviewerId
 
 export const getReviewsByUserId = async (userId: string): Promise<Review[]> => {
   const snapshot = await reviewsCollection.where("revieweeId", "==", userId).get();
-  return snapshot.docs.map(doc => doc.data() as Review);
+  return snapshot.docs.map((doc) => doc.data() as Review);
 };

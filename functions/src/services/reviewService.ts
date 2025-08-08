@@ -63,7 +63,7 @@ export const fetchReviewStats = async (userId: string) => {
   const stats = await getUserReviewStats(userId);
 
   console.log(`✅ Fetched review stats for user ${userId}:`, stats);
-  
+
   if (!stats) throw new Error("User not found or has no review data");
   return stats;
 };

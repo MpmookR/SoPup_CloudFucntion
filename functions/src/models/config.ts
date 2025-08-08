@@ -10,18 +10,50 @@ export enum UserGenderOption {
 // String Arrays for Selectable Options
 export const languageOptions: string[] = [
   // Western Europe
-  "English", "French", "Spanish", "Italian", "German", "Dutch", "Portuguese",
-  "Greek", "Swedish", "Finnish", "Norwegian", "Danish",
+  "English",
+  "French",
+  "Spanish",
+  "Italian",
+  "German",
+  "Dutch",
+  "Portuguese",
+  "Greek",
+  "Swedish",
+  "Finnish",
+  "Norwegian",
+  "Danish",
 
   // Eastern Europe
-  "Polish", "Czech", "Slovak", "Hungarian", "Romanian", "Bulgarian",
-  "Ukrainian", "Russian", "Serbian", "Croatian", "Slovenian",
-  "Lithuanian", "Latvian", "Estonian",
+  "Polish",
+  "Czech",
+  "Slovak",
+  "Hungarian",
+  "Romanian",
+  "Bulgarian",
+  "Ukrainian",
+  "Russian",
+  "Serbian",
+  "Croatian",
+  "Slovenian",
+  "Lithuanian",
+  "Latvian",
+  "Estonian",
 
   // Asia
-  "Chinese", "Japanese", "Korean", "Hindi", "Thai", "Vietnamese",
-  "Indonesian", "Malay", "Filipino", "Bengali", "Tamil", "Urdu",
-  "Turkish", "Farsi",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Hindi",
+  "Thai",
+  "Vietnamese",
+  "Indonesian",
+  "Malay",
+  "Filipino",
+  "Bengali",
+  "Tamil",
+  "Urdu",
+  "Turkish",
+  "Farsi",
 ];
 
 // Enums for Dog Profile Options
@@ -55,19 +87,37 @@ export enum HealthVerificationStatus {
 }
 
 export const playStyleOptions: string[] = [
-  "Chaser", "Wrestler", "Tugger", "Mouthy", "Gentle Player", "Independent",
-  "Ball-focused", "Social Butterfly", "Selective Player",
-  "Overexcited", "Explorer", "Observer",
+  "Chaser",
+  "Wrestler",
+  "Tugger",
+  "Mouthy",
+  "Gentle Player",
+  "Independent",
+  "Ball-focused",
+  "Social Butterfly",
+  "Selective Player",
+  "Overexcited",
+  "Explorer",
+  "Observer",
 ];
 
 export const playEnvironmentOptions: string[] = [
-  "Open Fields", "Enclosed Parks", "Home Garden",
-  "Daycare", "Indoor", "Flexible",
+  "Open Fields",
+  "Enclosed Parks",
+  "Home Garden",
+  "Daycare",
+  "Indoor",
+  "Flexible",
 ];
 
 export const triggerSensitivityOptions: string[] = [
-  "Loud noises", "Sudden movements", "Cats", "Vehicle",
-  "Wheelchairs", "Vacuum cleaners", "Strangers",
+  "Loud noises",
+  "Sudden movements",
+  "Cats",
+  "Vehicle",
+  "Wheelchairs",
+  "Vacuum cleaners",
+  "Strangers",
 ];
 
 export interface DogBehavior {
@@ -88,11 +138,11 @@ export interface HealthStatus {
 export enum MessageType {
   text = "text", // plain text message
   meetupRequest = "meetupRequest", // message containing a meetup request
-  system = "system" // system-generated messages (e.g., match confirmation, puppy mode warning)
+  system = "system", // system-generated messages (e.g., match confirmation, puppy mode warning)
 }
 
 export enum MeetupStatus {
-  pending = "pending", 
+  pending = "pending",
   upcoming = "accepted",
   declined = "rejected",
   completed = "completed",

@@ -55,9 +55,8 @@ router.post("/:chatRoomId/create", authenticate, async (req, res) => {
 // Route: POST /api/meetups/:chatRoomId/update-details
 console.log("✅ Meetup Details Update Route Loaded");
 router.put("/:chatRoomId/cancel", authenticate, async (req, res) => {
-   const chatRoomId = req.params.chatRoomId.replace(/^:/, ""); // remove leading colon
+  const chatRoomId = req.params.chatRoomId.replace(/^:/, ""); // remove leading colon
   try {
-    
     const { update, senderId, receiverId } = req.body;
 
     await cancelMeetupRequest(chatRoomId, update.id, senderId, receiverId);

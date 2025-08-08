@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
-import { seedMockData } from "../dev/seedmockData"; 
+import { seedMockData } from "../dev/seedmockData";
 
+// eslint-disable-next-line new-cap
 const router = express.Router();
 console.log("🚀 Dev Controller initialized");
 

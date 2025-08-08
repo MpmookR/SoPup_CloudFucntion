@@ -9,8 +9,8 @@ import chatRoutes from "./controllers/chatController";
 import meetupRoutes from "./controllers/meetupController";
 import reviewRoutes from "./controllers/reviewController";
 
-//dev testing routes
-import devRoutes from "./controllers/devController";
+// dev testing routes
+// import devRoutes from "./controllers/devController";
 
 
 console.log("🔥 Starting full Express app...");
@@ -29,8 +29,8 @@ app.use("/chat", chatRoutes);
 app.use("/meetups", meetupRoutes);
 app.use("/reviews", reviewRoutes);
 
-//dev testing routes
-app.use("/dev", devRoutes);
+// dev testing routes
+// app.use("/dev", devRoutes);
 
 // Export Cloud Function (2nd Gen)
 export const api = onRequest(

@@ -37,9 +37,12 @@ export const createChatRoom = async (
 
   const isPuppyMode = fromDog.mode === "puppy" || toDog.mode === "puppy";
 
-  const introText = isPuppyMode
-    ? "⚠️ Meet-Up is currently disabled.\nOne of the dogs is in Puppy Mode. Puppies under 12 weeks should avoid in-person interactions until fully vaccinated"
-    : "✨Matched!\n You can now chat and plan a playdate. Remember: Positive social interactions build confidence and reduce reactivity.";
+  const introText = isPuppyMode ?
+    "⚠️ Meet-Up is currently disabled.\n" +
+    "One of the dogs is in Puppy Mode.\n" +
+    "Puppies under 12 weeks should avoid in-person interactions until fully vaccinated" :
+    "✨Matched! You can now chat and plan a playdate. " +
+    "Remember: Positive social interactions build confidence and reduce reactivity.";
 
   await createChatRoomDocument(chatRoomId, {
     id: chatRoomId,
@@ -55,9 +58,9 @@ export const createChatRoom = async (
     },
   });
 
-  console.log(`✅ Chat room created: ${chatRoomId}`);
-  console.log(`✅ intro text:`, introText);
-  console.log(`✅ Is puppy mode: ${isPuppyMode}`);
+  console.log("✅ Chat room created: " + chatRoomId);
+  console.log("✅ intro text: " + introText);
+  console.log("✅ Is puppy mode: " + isPuppyMode);
 
   // Add system message to the chatroom
   await addSystemMessageToChatRoom(chatRoomId, {
@@ -130,7 +133,6 @@ export const sendMessage = async (
 
   return fullMessage;
 };
-
 
 // 3. Fetch all messages
 export const getMessagesForChatRoom = async (chatRoomId: string): Promise<Message[]> => {

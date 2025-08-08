@@ -36,6 +36,7 @@ router.post("/submit", authenticate, async (req, res) => {
 });
 
 // Route: GET /api/reviews/average/:userId
+// fetch the average review stats for a user
 console.log("✅ Review Stats Route Loaded");
 router.get("/average/:userId", async (req, res) => {
   try {

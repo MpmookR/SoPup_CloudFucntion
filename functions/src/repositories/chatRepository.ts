@@ -34,7 +34,8 @@ export const addMeetupMessageToChatRoom = async (
   chatRoomId: string,
   message: Message
 ): Promise<void> => {
-  await db.collection("chatRooms")
+  await db
+    .collection("chatRooms")
     .doc(chatRoomId)
     .collection("messages")
     .doc(message.id) // Use the message ID as the document ID
@@ -49,13 +50,12 @@ export const addMessageToChatRoom = async (
   const ref = await db.collection("chatRooms").doc(chatRoomId).collection("messages").add(message);
 
   const messageId = ref.id;
-    
+
   // Optionally update the document to include the generated ID
   await ref.update({ id: messageId });
 
   return messageId;
 };
-
 
 // 5. Update a message in the chat room
 // use for updating meetup status, rescheduling, etc.

@@ -235,8 +235,8 @@ export const cancelMeetupRequest = async (
   console.log(`✅ Updated Meet-Up ${meetupId} status to cancelled`);
 
   await updateMessageInChatRoom(chatRoomId, meetupId, {
-    text: "❌ Meet-Up Cancelled",
-    timestamp: new Date(),
+    "text": "❌ Meet-Up Cancelled",
+    "timestamp": new Date(),
     "meetupRequest.status": MeetupStatus.cancelled, // Update status to cancelled
   });
 

@@ -15,6 +15,6 @@ export interface User {
   isMock?: boolean;
   pushToken?: string; // FCM token
 
-  averageRating: number;   
-  reviewCount: number;     
+  averageRating: number;
+  reviewCount: number;
 }
