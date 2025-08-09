@@ -69,8 +69,12 @@ router.put("/:id/status", async (req: Request, res: Response) => {
   }
 
   try {
-    await updateMatchRequestStatus(id, status as "accepted" | "rejected");
-    return res.status(200).json({ message: "Status updated successfully" });
+    const result = await updateMatchRequestStatus(id, status as "accepted" | "rejected");
+
+    return res.status(200).json({
+      message: "Status updated successfully",
+      ...result, // includes chatRoomId if accepted
+    });
   } catch (err: any) {
     console.error(`❌ Failed to update status for request ${id}:`, err);
     if (err.message === "Match request not found") {
@@ -115,6 +119,5 @@ router.get("/:dogId", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 export default router;

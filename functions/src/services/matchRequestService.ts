@@ -2,6 +2,7 @@ import { MatchRequest } from "../models/Match/MatchRequest";
 import admin from "../config/firebaseAdmin";
 import { sendPushNotification } from "../services/notificationService";
 import { getPushTokenByUserId } from "../repositories/userRepository";
+import { createChatRoom } from "./chatService";
 
 const COLLECTION = "matchRequests";
 
@@ -12,7 +13,8 @@ export const createMatchRequest = async (
   data: Omit<MatchRequest, "id" | "createdAt">
 ): Promise<MatchRequest> => {
   // Check for duplicates
-  const existing = await admin.firestore()
+  const existing = await admin
+    .firestore()
     .collection(COLLECTION)
     .where("fromUserId", "==", data.fromUserId)
     .where("toDogId", "==", data.toDogId)
@@ -62,7 +64,11 @@ export const createMatchRequest = async (
 };
 
 export const getAllMatchRequests = async (): Promise<MatchRequest[]> => {
-  const snapshot = await admin.firestore().collection(COLLECTION).orderBy("createdAt", "desc").get();
+  const snapshot = await admin
+    .firestore()
+    .collection(COLLECTION)
+    .orderBy("createdAt", "desc")
+    .get();
   return snapshot.docs.map((doc) => doc.data() as MatchRequest);
 };
 
@@ -125,7 +131,7 @@ export const getMatchRequests = async (
 export const updateMatchRequestStatus = async (
   requestId: string,
   newStatus: "accepted" | "rejected"
-): Promise<void> => {
+): Promise<{ chatRoomId?: string }> => {
   const docRef = admin.firestore().collection(COLLECTION).doc(requestId);
 
   const doc = await docRef.get();
@@ -133,10 +139,10 @@ export const updateMatchRequestStatus = async (
     throw new Error("Match request not found");
   }
 
+  const request = doc.data() as MatchRequest;
   await docRef.update({ status: newStatus, updatedAt: new Date() });
 
   if (newStatus === "accepted") {
-    const request = doc.data() as MatchRequest;
     const pushToken = await getPushTokenByUserId(request.fromUserId);
 
     if (pushToken) {
@@ -154,7 +160,19 @@ export const updateMatchRequestStatus = async (
     } else {
       console.warn("⚠️ No push token found for user:", request.fromUserId);
     }
+
+    // Auto-create chat room after .accepted is called
+    const chatRoomId = await createChatRoom(
+      request.fromUserId,
+      request.fromDogId,
+      request.toUserId,
+      request.toDogId
+    );
+
+    return { chatRoomId }; // Send this back to frontend
   }
+
+  return {};
 };
 
 // Check if a pending match request already exists between two dogs
@@ -162,7 +180,8 @@ export const checkIfMatchRequestExists = async (
   fromDogId: string,
   toDogId: string
 ): Promise<boolean> => {
-  const snapshot = await admin.firestore()
+  const snapshot = await admin
+    .firestore()
     .collection(COLLECTION)
     .where("fromDogId", "==", fromDogId)
     .where("toDogId", "==", toDogId)

@@ -31,20 +31,9 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
-    // -------------------------------------------------------------
-    // 🔒 SECURE VERSION (ENABLE BEFORE GOING LIVE)
-    //
-    // match /users/{userId} {
-    //   allow read: if request.auth != null;
-    //   allow write: if request.auth != null && request.auth.uid == userId;
-    // }
-    //
-    // match /dogReviews/{reviewId} {
-    //   allow read: if request.auth != null;
-    //   allow write: if request.auth != null &&
-    //                request.resource.data.reviewerDogId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.dogId;
-    // }
-    // -------------------------------------------------------------
+    match /chatRooms/{chatRoomId} {
+      allow read, write: if request.auth != null;
+    }
 
   }
 }

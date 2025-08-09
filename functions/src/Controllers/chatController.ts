@@ -1,8 +1,7 @@
 import express, { Request, Response } from "express";
-import { createChatRoom } from "../services/chatService";
+import { createChatRoom, sendMessage, getMessagesForChatRoom, getChatRoomsForUser } from "../services/chatService";
 import { authenticate } from "../middleware/auth";
 import { MessageType } from "../models/config";
-import { sendMessage, getMessagesForChatRoom, getChatRoomsForUser } from "../services/chatService";
 import { convertDatesToISO } from "../helper/convertDatesToISO";
 
 // eslint-disable-next-line new-cap
