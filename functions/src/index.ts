@@ -8,10 +8,10 @@ import matchScoringRoutes from "./controllers/matchScoringController";
 import chatRoutes from "./controllers/chatController";
 import meetupRoutes from "./controllers/meetupController";
 import reviewRoutes from "./controllers/reviewController";
+import dogRoutes from "./controllers/dogModeController";
 
 // dev testing routes
 // import devRoutes from "./controllers/devController";
-
 
 console.log("🔥 Starting full Express app...");
 
@@ -28,6 +28,7 @@ app.use("/matchScoring", matchScoringRoutes);
 app.use("/chat", chatRoutes);
 app.use("/meetups", meetupRoutes);
 app.use("/reviews", reviewRoutes);
+app.use("/dogs", dogRoutes);
 
 // dev testing routes
 // app.use("/dev", devRoutes);

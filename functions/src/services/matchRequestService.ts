@@ -148,7 +148,7 @@ export const updateMatchRequestStatus = async (
     if (pushToken) {
       await sendPushNotification(pushToken, {
         title: "Match Accepted 🎉",
-        body: `Your match request to ${request.toDogId} has been accepted!`,
+        body: `Your match request to ${request.toDogId} has been accepted!`, // need to update to dog name
         data: {
           type: "match_accepted",
           dogId: request.toDogId,

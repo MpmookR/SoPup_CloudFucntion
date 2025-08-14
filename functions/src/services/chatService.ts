@@ -35,6 +35,18 @@ export const createChatRoom = async (
   const toDog = await getDogById(toDogId);
   if (!fromDog || !toDog) throw new Error("One or both dogs not found");
 
+  // Derive true user IDs from dog owners
+  const ownerFromUserId = fromDog.ownerId;
+  const ownerToUserId = toDog.ownerId;
+  if (!ownerFromUserId || !ownerToUserId) {
+    throw new Error("Dog(s) missing ownerId field");
+  }
+
+  // Prevent creating chat with yourself
+  if (ownerFromUserId === ownerToUserId) {
+    throw new Error("Cannot create chat with your own dog");
+  }
+
   const isPuppyMode = fromDog.mode === "puppy" || toDog.mode === "puppy";
 
   const introText = isPuppyMode ?
@@ -47,7 +59,7 @@ export const createChatRoom = async (
   await createChatRoomDocument(chatRoomId, {
     id: chatRoomId,
     dogIds: [fromDogId, toDogId],
-    userIds: [fromUserId, toUserId],
+    userIds: [ownerFromUserId, ownerToUserId],
     createdAt: new Date(),
     isPuppyMode,
     lastMessage: {
@@ -66,7 +78,7 @@ export const createChatRoom = async (
   await addSystemMessageToChatRoom(chatRoomId, {
     text: introText,
     senderId: "system",
-    receiverId: toUserId,
+    receiverId: ownerToUserId,
     senderDogId: fromDogId,
     receiverDogId: toDogId,
     timestamp: new Date(),
@@ -74,7 +86,7 @@ export const createChatRoom = async (
   });
 
   // send FCM notification to the other user
-  const token = await getPushTokenByUserId(toUserId);
+  const token = await getPushTokenByUserId(ownerToUserId);
   if (token) {
     await sendPushNotification(token, {
       title: "New Match Chat",

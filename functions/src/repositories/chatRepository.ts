@@ -110,32 +110,3 @@ export const getChatRoomsByUserId = async (userId: string): Promise<ChatRoom[]> 
   });
 };
 
-// // 9. get all meet up messages where user is the sender or receiver
-// // we store meetup messages in the chat room
-// export const getMeetupMessagesForUser = async (userId: string): Promise<Message[]> => {
-//   const chatRoomsSnapshot = await db.collection("chatRooms").get();
-
-//   const messages: Message[] = [];
-
-//   // Loop through each chat room to find meetup messages
-//   // ⚠️ ⚠️ This is a brute-force approach. For optimization, you’d index by participant or cache meet-ups separately.
-//   for (const doc of chatRoomsSnapshot.docs) {
-//     const chatRoomId = doc.id;
-
-//     const msgSnapshot = await db
-//       .collection("chatRooms")
-//       .doc(chatRoomId)
-//       .collection("messages")
-//       .where("messageType", "==", "meetupRequest")
-//       .get();
-
-//     msgSnapshot.docs.forEach((msgDoc) => {
-//       const msg = msgDoc.data() as Message;
-//       if (msg.senderId === userId || msg.receiverId === userId) {
-//         messages.push(msg);
-//       }
-//     });
-//   }
-
-//   return messages;
-// };

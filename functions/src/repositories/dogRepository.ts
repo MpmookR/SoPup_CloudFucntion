@@ -13,9 +13,7 @@ export const getDogById = async (dogId: string): Promise<Dog | null> => {
 
 // Fetch multiple dogs by their IDs for match scoring
 export const getDogsByIds = async (dogIds: string[]): Promise<Dog[]> => {
-  const snapshots = await Promise.all(
-    dogIds.map((id) => dogsCollection.doc(id).get())
-  );
+  const snapshots = await Promise.all(dogIds.map((id) => dogsCollection.doc(id).get()));
 
   return snapshots.flatMap((doc, i) => {
     if (!doc.exists) {
@@ -35,10 +33,7 @@ export const getDogsByIds = async (dogIds: string[]): Promise<Dog[]> => {
 export const getDogCoordinatesByIds = async (
   dogIds: string[]
 ): Promise<Map<string, Coordinate>> => {
-  const snapshot = await db
-    .collection("dogs")
-    .where("id", "in", dogIds)
-    .get();
+  const snapshot = await db.collection("dogs").where("id", "in", dogIds).get();
 
   const map = new Map<string, Coordinate>();
 
@@ -61,3 +56,18 @@ export const getDogOwnerIdById = async (dogId: string): Promise<string | null> =
   return dog.ownerId ?? null;
 };
 
+// Update a dog document with new data
+export const updateDog = async (dogId: string, updateData: Partial<Dog>): Promise<void> => {
+  await dogsCollection.doc(dogId).update(updateData);
+};
+
+// Update dog vaccination dates
+export const updateDogVaccinations = async (
+  dogId: string,
+  vaccinations: {
+    coreVaccination1Date?: Date | string;
+    coreVaccination2Date?: Date | string;
+  }
+): Promise<void> => {
+  await dogsCollection.doc(dogId).update(vaccinations);
+};

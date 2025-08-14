@@ -12,10 +12,7 @@ export const getUserById = async (userId: string): Promise<User | null> => {
 
 // Gets the full User document by Dog ID (via primaryDogId).
 export const getUserByDogId = async (dogId: string): Promise<User | null> => {
-  const snapshot = await usersCollection
-    .where("primaryDogId", "==", dogId)
-    .limit(1)
-    .get();
+  const snapshot = await usersCollection.where("primaryDogId", "==", dogId).limit(1).get();
 
   if (snapshot.empty) return null;
   return snapshot.docs[0].data() as User;
@@ -29,6 +26,11 @@ export const getPushTokenByUserId = async (userId: string): Promise<string | nul
 
   const user = doc.data() as User;
   return user.pushToken ?? null;
+};
+
+// Update user profile data
+export const updateUser = async (userId: string, updateData: Partial<User>): Promise<void> => {
+  await usersCollection.doc(userId).update(updateData);
 };
 
 // to write review stats to the user document
@@ -52,4 +54,3 @@ export const getUserReviewStats = async (
     reviewCount: data?.reviewCount ?? 0,
   };
 };
-
