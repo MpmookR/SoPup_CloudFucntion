@@ -1,5 +1,24 @@
 ## ✍️ To Do:
 
+1. recreate the fetch meet up request based on meetupRequest type: incoming and outgoing
+example from the getMatchRequests function (no accept)
+
+2. after reciver accept the meet up request using the updateMeetupStatus
+ - we should be able to fetch the accepted meet up to show it on client side
+
+3. make sure the cancelMeetupRequest, the current status of the meet up should be accepted. 
+- then allow both users to cancel it
+
+4. A function to check if accepted meetup has passed the ended meet up time for an hour. 
+- We should have a function to auto-change the status from accepted to completed 
+
+- this will allow another controller to check the completed meet up status and allow user to leave the review
+
+
+
+// eslint-disable-next-line new-cap
+
+
 ✅ modeSwitcher: COMPLETED
 
 condition

@@ -1,6 +1,7 @@
 import admin from "../config/firebaseAdmin";
 import { MeetupRequest } from "../models/Chat/MeetupRequest";
 import { MeetupRequestUpdateDTO } from "../models/DTO/meetupRequestUpdateDTO";
+import { MeetupStatus } from "../models/config";
 
 const db = admin.firestore();
 const meetupCollection = db.collection("meetups");
@@ -37,4 +38,40 @@ export const getMeetupById = async (meetupId: string): Promise<MeetupRequest | n
   const doc = await meetupCollection.doc(meetupId).get();
   if (!doc.exists) return null;
   return doc.data() as MeetupRequest;
+};
+
+// NEW: by direction (relative to a USER)
+export const getMeetupsByUserAndDirection = async (
+  userId: string,
+  direction: "incoming" | "outgoing",
+  status?: MeetupStatus
+): Promise<MeetupRequest[]> => {
+  let q =
+    direction === "incoming" ?
+      meetupCollection.where("receiverId", "==", userId) :
+      meetupCollection.where("senderId", "==", userId);
+
+  if (status) q = q.where("status", "==", status);
+
+  const snap = await q.get();
+  return snap.docs.map((d) => d.data() as MeetupRequest);
+};
+
+// (optional) both directions in one call
+export const getMeetupsForUserWithStatus = async (
+  userId: string,
+  status?: MeetupStatus
+): Promise<MeetupRequest[]> => {
+  const [inSnap, outSnap] = await Promise.all([
+    (status ?
+      meetupCollection.where("receiverId", "==", userId).where("status", "==", status) :
+      meetupCollection.where("receiverId", "==", userId)
+    ).get(),
+    (status ?
+      meetupCollection.where("senderId", "==", userId).where("status", "==", status) :
+      meetupCollection.where("senderId", "==", userId)
+    ).get(),
+  ]);
+
+  return [...inSnap.docs, ...outSnap.docs].map((d) => d.data() as MeetupRequest);
 };
