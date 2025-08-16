@@ -83,8 +83,10 @@ router.put("/:chatRoomId/:meetupId/status", authenticate, async (req: Request, r
       return res.status(403).json({ error: "You can only respond to meetup requests sent to you" });
     }
 
-    await updateMeetupStatus(chatRoomId, meetupId, status as MeetupStatus, authUserId, meetup.receiverId);
-    return res.status(200).json({ message: `Meetup request ${status} successfully`, success: true });
+    await updateMeetupStatus(chatRoomId, meetupId, status as MeetupStatus, authUserId);
+    return res
+      .status(200)
+      .json({ message: `Meetup request ${status} successfully`, success: true });
   } catch (error: any) {
     const code = error.status ?? 500;
     console.error("❌ Error updating meetup status:", error.message);
@@ -106,7 +108,9 @@ router.delete("/:chatRoomId/:meetupId", authenticate, async (req: Request, res: 
   try {
     await cancelMeetupRequest(chatRoomId, meetupId, requesterUserId);
 
-    return res.status(200).json({ message: "Meetup request cancelled successfully", success: true });
+    return res
+      .status(200)
+      .json({ message: "Meetup request cancelled successfully", success: true });
   } catch (err: any) {
     const status = err.status ?? 500; // 403/409 bubbled from service
     console.error("❌ Error cancelling meetup:", err.message);
@@ -128,7 +132,8 @@ router.get("/user/:userId", authenticate, async (req, res) => {
   // Validate status query
   const allowedStatuses: string[] = ["pending", "accepted", "rejected", "cancelled", "completed"];
   // normalize the status to the MeetupStatus enum
-  const normalizedStatus = status && allowedStatuses.includes(status) ? (status as MeetupStatus) : undefined;
+  const normalizedStatus =
+    status && allowedStatuses.includes(status) ? (status as MeetupStatus) : undefined;
   if (status && !normalizedStatus) {
     return res.status(400).json({ error: "Invalid status filter" });
   }

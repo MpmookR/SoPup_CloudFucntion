@@ -3,6 +3,24 @@ import { MeetupRequest } from "../models/Chat/MeetupRequest";
 import { MeetupRequestUpdateDTO } from "../models/DTO/meetupRequestUpdateDTO";
 import { MeetupStatus } from "../models/config";
 
+// Helper function to convert Firestore Timestamps to Date objects
+const convertFirestoreMeetup = (data: any): MeetupRequest => {
+  const convertTimestamp = (timestamp: any): Date => {
+    if (!timestamp) return new Date();
+    if (timestamp instanceof Date) return timestamp;
+    if (timestamp._seconds) return new Date(timestamp._seconds * 1000);
+    if (typeof timestamp === "string") return new Date(timestamp);
+    return new Date(timestamp);
+  };
+
+  return {
+    ...data,
+    proposedTime: convertTimestamp(data.proposedTime),
+    createdAt: convertTimestamp(data.createdAt),
+    updatedAt: convertTimestamp(data.updatedAt),
+  } as MeetupRequest;
+};
+
 const db = admin.firestore();
 const meetupCollection = db.collection("meetups");
 
@@ -25,10 +43,10 @@ export const getMeetupsForUser = async (userId: string): Promise<MeetupRequest[]
   const meetups: MeetupRequest[] = [];
 
   const senderSnap = await meetupCollection.where("senderId", "==", userId).get();
-  senderSnap.forEach((doc) => meetups.push(doc.data() as MeetupRequest));
+  senderSnap.forEach((doc) => meetups.push(convertFirestoreMeetup(doc.data())));
 
   const receiverSnap = await meetupCollection.where("receiverId", "==", userId).get();
-  receiverSnap.forEach((doc) => meetups.push(doc.data() as MeetupRequest));
+  receiverSnap.forEach((doc) => meetups.push(convertFirestoreMeetup(doc.data())));
 
   return meetups;
 };
@@ -37,10 +55,10 @@ export const getMeetupsForUser = async (userId: string): Promise<MeetupRequest[]
 export const getMeetupById = async (meetupId: string): Promise<MeetupRequest | null> => {
   const doc = await meetupCollection.doc(meetupId).get();
   if (!doc.exists) return null;
-  return doc.data() as MeetupRequest;
+  return convertFirestoreMeetup(doc.data());
 };
 
-// NEW: by direction (relative to a USER)
+// by direction (relative to a USER)
 export const getMeetupsByUserAndDirection = async (
   userId: string,
   direction: "incoming" | "outgoing",
@@ -54,7 +72,7 @@ export const getMeetupsByUserAndDirection = async (
   if (status) q = q.where("status", "==", status);
 
   const snap = await q.get();
-  return snap.docs.map((d) => d.data() as MeetupRequest);
+  return snap.docs.map((d) => convertFirestoreMeetup(d.data()));
 };
 
 // (optional) both directions in one call
@@ -73,5 +91,5 @@ export const getMeetupsForUserWithStatus = async (
     ).get(),
   ]);
 
-  return [...inSnap.docs, ...outSnap.docs].map((d) => d.data() as MeetupRequest);
+  return [...inSnap.docs, ...outSnap.docs].map((d) => convertFirestoreMeetup(d.data()));
 };

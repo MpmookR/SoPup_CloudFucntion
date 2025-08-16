@@ -4,7 +4,7 @@ import { MeetupStatus } from "../../models/config";
 export interface MeetupSummaryDTO {
   id: string;
   chatRoomId: string;
-  proposedTime: Date;
+  proposedTime: string;
   locationName: string;
   status: MeetupStatus;
   otherUserId: string;
@@ -12,4 +12,5 @@ export interface MeetupSummaryDTO {
   otherDogId: string;
   otherDogName: string;
   otherDogImageUrl?: string;
+  direction: "incoming" | "outgoing";
 }

@@ -144,7 +144,7 @@ export enum MessageType {
 export enum MeetupStatus {
   pending = "pending",
   accepted = "accepted",
-  declined = "rejected",
+  rejected = "rejected",
   completed = "completed",
   cancelled = "cancelled",
 }

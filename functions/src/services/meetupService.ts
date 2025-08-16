@@ -57,7 +57,7 @@ const toMeetupSummaryDTO = async (
   return {
     id: meetup.id,
     chatRoomId: meetup.chatRoomId,
-    proposedTime: meetup.proposedTime,
+    proposedTime: meetup.proposedTime.toISOString(),
     locationName: meetup.locationName,
     status: meetup.status,
     otherUserId,
@@ -65,6 +65,7 @@ const toMeetupSummaryDTO = async (
     otherDogId,
     otherDogName: otherDog?.name || "Dog",
     otherDogImageUrl: otherDog?.imageURLs?.[0] || "",
+    direction: isSender ? "outgoing" : "incoming",
   };
 };
 
@@ -77,7 +78,12 @@ export const createMeetupRequest = async (
   senderDogId: string,
   receiverDogId: string
 ): Promise<Message> => {
-  // 1) Validate Puppy Mode
+  // 1) Validate proposed time is in the future
+  if (new Date(meetup.proposedTime) <= new Date()) {
+    throw new Error("Meetup time must be in the future");
+  }
+
+  // 2) Validate Puppy Mode
   const [senderDog, receiverDog] = await Promise.all([
     getDogById(senderDogId),
     getDogById(receiverDogId),
@@ -90,7 +96,7 @@ export const createMeetupRequest = async (
   }
   console.log(`✅ is one of the user in Puppy Mode: ${isPuppyMode}`);
 
-  // 2) Create meet-up
+  // 3) Create meet-up
   const meetupId = `meetup_${chatRoomId}_${Date.now()}`;
   const now = new Date();
   const newMeetup: MeetupRequest = {
@@ -142,54 +148,77 @@ export const createMeetupRequest = async (
 export const updateMeetupStatus = async (
   chatRoomId: string,
   meetupId: string,
-  status: MeetupStatus,
-  senderId: string,
-  receiverId: string
+  nextStatus: MeetupStatus,
+  requesterUserId: string
 ): Promise<void> => {
   const now = new Date();
-  const text = status === "accepted" ? "✅ Meet-Up Accepted" : "❌ Meet-Up Rejected";
+  const meetup = await getMeetupById(meetupId);
+  if (!meetup) throw new Error("Meet-up not found");
 
-  // 1) Update meetups collection
-  await updateMeetup(meetupId, { status, updatedAt: now });
-  console.log(`✅ Updated Meet-Up ${meetupId} status to ${status}`);
+  // Auth: must be participant
+  if (!isParticipant(meetup, requesterUserId)) {
+    const e: any = new Error("You are not a participant of this meet-up");
+    e.status = 403;
+    throw e;
+  }
 
-  // 2) Update the latest meetup message (found by query) — keeping your working approach
-  const messageSnapshot = await admin
+  // Only transitions allowed from 'pending' → 'accepted'|'rejected'
+  if (meetup.status !== MeetupStatus.pending) {
+    const e: any = new Error("Only pending meet-ups can be accepted or rejected");
+    e.status = 409;
+    throw e;
+  }
+
+  if (nextStatus !== MeetupStatus.accepted && nextStatus !== MeetupStatus.rejected) {
+    const e: any = new Error("Invalid status transition");
+    e.status = 400;
+    throw e;
+  }
+
+  // Persist
+  await updateMeetup(meetupId, { status: nextStatus, updatedAt: now });
+
+  const text = nextStatus === MeetupStatus.accepted ? "✅ Meet-Up Accepted" : "❌ Meet-Up Rejected";
+  console.log(`✅ Updated Meet-Up Status: ${meetupId} to ${nextStatus}`);
+
+  // Update the original request message text/time
+  const messagesCol = admin
     .firestore()
     .collection("chatRooms")
     .doc(chatRoomId)
-    .collection("messages")
+    .collection("messages");
+
+  const snap = await messagesCol
     .where("meetupId", "==", meetupId)
     .where("messageType", "==", "meetupRequest")
     .orderBy("timestamp", "desc")
     .limit(1)
     .get();
 
-  if (!messageSnapshot.empty) {
-    await messageSnapshot.docs[0].ref.update({ text, timestamp: now });
+  if (!snap.empty) {
+    await snap.docs[0].ref.update({ text, timestamp: now });
   } else {
-    console.warn(`⚠️ No matching message found for meetupId ${meetupId}`);
+    console.warn(`⚠️ No meetupRequest message found for ${meetupId}`);
   }
 
-  // 3) Update last message
+  // Update last message
   await updateLastMessageInChatRoom(chatRoomId, {
     text,
     timestamp: now,
-    senderId,
+    senderId: requesterUserId,
     messageType: MessageType.system,
   });
 
-  // 4) Notify on accept
-  if (status === "accepted") {
-    await notify(
-      receiverId,
-      "✅ Meet-Up Accepted",
-      "Your match has accepted the meet-up request!",
-      {
-        chatRoomId,
-      }
-    );
-  }
+  // Notify the *other* user
+  const otherUserId = otherUserIdOf(meetup, requesterUserId);
+  await notify(
+    otherUserId,
+    text,
+    nextStatus === MeetupStatus.accepted ?
+      "Your meet-up request was accepted." :
+      "Your meet-up request was rejected.",
+    { chatRoomId, meetupId, status: nextStatus }
+  );
 };
 
 // Cancel meet-up (only when accepted)
@@ -216,6 +245,7 @@ export const cancelMeetupRequest = async (
 
   // 2) Persist
   await updateMeetup(meetupId, { status: MeetupStatus.cancelled, updatedAt: now });
+  console.log(`✅ Cancelled Meet-Up Request: ${meetupId} in chat room ${chatRoomId}`);
 
   // 3) Append system message
   await addMeetupMessageToChatRoom(chatRoomId, {
@@ -247,7 +277,7 @@ export const cancelMeetupRequest = async (
   );
 };
 
-// Complete meet-up (manual) 
+// Complete meet-up (manual)
 export const completeMeetupRequest = async (
   chatRoomId: string,
   meetupId: string,
@@ -272,6 +302,7 @@ export const completeMeetupRequest = async (
   // 2) Persist
   await updateMeetup(meetupId, { status: MeetupStatus.completed, updatedAt: now });
 
+  console.log(`✅ Completed Meet-Up Request: ${meetupId} in chat room ${chatRoomId}`);
   // 3) Append system message
   await addMeetupMessageToChatRoom(chatRoomId, {
     id: `completed_${meetupId}_${now.getTime()}`,
@@ -310,7 +341,10 @@ export const fetchMeetupsByType = async (
 ): Promise<MeetupSummaryDTO[]> => {
   const rows = await getMeetupsByUserAndDirection(userId, type, status);
   const mapped = await Promise.all(rows.map((m) => toMeetupSummaryDTO(m, userId)));
-  return mapped.sort((a, b) => a.proposedTime.getTime() - b.proposedTime.getTime());
+
+  console.log(`✅ Fetched ${mapped.length} meetups for user ${userId}`);
+  console.log("Fetched meetups:", mapped);
+  return mapped.sort((a, b) => new Date(a.proposedTime).getTime() - new Date(b.proposedTime).getTime());
 };
 
 export const fetchAllMeetupsForUser = async (
@@ -319,5 +353,7 @@ export const fetchAllMeetupsForUser = async (
 ): Promise<MeetupSummaryDTO[]> => {
   const rows = await getMeetupsForUserWithStatus(userId, status);
   const mapped = await Promise.all(rows.map((m) => toMeetupSummaryDTO(m, userId)));
-  return mapped.sort((a, b) => a.proposedTime.getTime() - b.proposedTime.getTime());
+  console.log(`✅ Fetched ${mapped.length} meetups for user ${userId}`);
+  console.log("Fetched meetups:", mapped);
+  return mapped.sort((a, b) => new Date(a.proposedTime).getTime() - new Date(b.proposedTime).getTime());
 };
