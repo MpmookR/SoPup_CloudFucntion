@@ -73,4 +73,22 @@ Backend mode switcher function
 
 To do
 
-Review 1. To be able to post review: 1. The meetup status is "accepted". 2. current day must older than the meet up date and time 3. The reviewer hasn't already submitted a review for this meetup. 2. The user cant review themselves 3. review must be able to get average score per user
+Review 
+>> Rating: 1 - 5 
+>> comment
+
+To be able to post review: 
+1. the meetup should change its status to completed
+2. The reviewer hasn't already submitted a review for this meetup. 
+3. The user cant review themselves 
+4. review must be able to get the average score per user
+
+in review section for user A, should show:
+- avg rating for the  user A
+
+review card: 
+- userB's dog name 
+- date review
+- rating that give to userA
+- UserB's comment
+

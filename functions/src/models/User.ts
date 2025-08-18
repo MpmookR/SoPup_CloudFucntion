@@ -5,7 +5,7 @@ export interface User {
   id: string;
   name: string;
   gender: UserGenderOption;
-  imageURL: string;
+  profilePictureURL: string;
   location: string;
   coordinate: Coordinate;
   locationPermissionDenied?: boolean;

@@ -1,6 +1,11 @@
 import express from "express";
 import { authenticate } from "../middleware/auth";
-import { submitReview, fetchReviewStats } from "../services/reviewService";
+import {
+  submitReview,
+  fetchReviewStats,
+  fetchUserReviews,
+  fetchUserReviewsWithDogInfo,
+} from "../services/reviewService";
 import { convertDatesToISO } from "../helper/convertDatesToISO";
 
 // eslint-disable-next-line new-cap
@@ -18,7 +23,7 @@ router.post("/submit", authenticate, async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const data = await submitReview({
+    const review = await submitReview({
       meetupId,
       revieweeId,
       reviewerId,
@@ -26,7 +31,8 @@ router.post("/submit", authenticate, async (req, res) => {
       comment,
     });
 
-    const message = "Review submitted successfully for meetup " + data;
+    const message = "Review submitted successfully for meetup " + meetupId;
+    console.log("💚 Review submitted successfully: " + review);
 
     return res.status(201).json(convertDatesToISO(message));
   } catch (error) {
@@ -50,7 +56,49 @@ router.get("/average/:userId", async (req, res) => {
     return res.status(200).json(stats);
   } catch (error) {
     console.error("❌ Error fetching review stats:", error);
-    return res.status(400).json({ error: "Failed to fetch review statistics. Please try again later" });
+    return res
+      .status(400)
+      .json({ error: "Failed to fetch review statistics. Please try again later" });
+  }
+});
+
+// Route: GET /api/reviews/user/:userId
+// fetch all reviews for a user (for displaying review cards)
+console.log("✅ User Reviews Route Loaded");
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Missing user ID" });
+    }
+
+    const reviews = await fetchUserReviews(userId);
+    return res.status(200).json(convertDatesToISO(reviews));
+  } catch (error) {
+    console.error("❌ Error fetching user reviews:", error);
+    return res.status(400).json({ error: "Failed to fetch user reviews. Please try again later" });
+  }
+});
+
+// Route: GET /api/reviews/user/:userId/enhanced
+// fetch all reviews for a user with enhanced dog information for review cards
+console.log("✅ Enhanced User Reviews Route Loaded");
+router.get("/user/:userId/enhanced", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Missing user ID" });
+    }
+
+    const enhancedReviews = await fetchUserReviewsWithDogInfo(userId);
+    return res.status(200).json(convertDatesToISO(enhancedReviews));
+  } catch (error) {
+    console.error("❌ Error fetching enhanced user reviews:", error);
+    return res
+      .status(400)
+      .json({ error: "Failed to fetch enhanced user reviews. Please try again later" });
   }
 });
 
