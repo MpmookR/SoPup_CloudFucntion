@@ -13,15 +13,30 @@ export const createMatchRequest = async (
   data: Omit<MatchRequest, "id" | "createdAt">
 ): Promise<MatchRequest> => {
   // Check for duplicates
-  const existing = await admin
-    .firestore()
-    .collection(COLLECTION)
-    .where("fromUserId", "==", data.fromUserId)
+  const db = admin.firestore();
+  const collection = db.collection(COLLECTION);
+
+  // Consider “active” statuses that should block re-creation
+  const activeStatuses = ["pending", "accepted"];
+
+  // A -> B
+  const dup1 = await collection
+    .where("fromDogId", "==", data.fromDogId)
     .where("toDogId", "==", data.toDogId)
+    .where("status", "in", activeStatuses)
+    .limit(1)
     .get();
 
-  if (!existing.empty) {
-    throw new Error("Match request already exists");
+  // B -> A (reverse)
+  const dup2 = await collection
+    .where("fromDogId", "==", data.toDogId)
+    .where("toDogId", "==", data.fromDogId)
+    .where("status", "in", activeStatuses)
+    .limit(1)
+    .get();
+
+  if (!dup1.empty || !dup2.empty) {
+    throw new Error("Match already exists or is pending");
   }
 
   // Create Firestore doc reference to generate ID once

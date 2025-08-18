@@ -11,4 +11,6 @@ export interface matchScoringDTO {
   filteredDogIds: string[]; // matching dogs
   userLocation: Coordinate;
   filters?: DogFilterSettings;
+
+  excludedDogIds?: string[];
 }

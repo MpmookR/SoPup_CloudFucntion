@@ -2,35 +2,54 @@ import { matchScoringDTO } from "../models/DTO/matchScoringDTO";
 import { ScoredDog } from "../models/Dog";
 import { getDogsByIds, getDogCoordinatesByIds } from "../repositories/dogRepository";
 import { getDistance } from "../helper/geoHelper";
-import { getGenderNeuterCompatibilityScore, getPreferredAgeScore, passesHardFilters } from "../helper/matchHelper";
+import {
+  getGenderNeuterCompatibilityScore,
+  getPreferredAgeScore,
+  passesHardFilters,
+} from "../helper/matchHelper";
 import { normalizeDob } from "../helper/convertDatesToISO";
+import { getExcludedDogIdsForDog } from "./matchExclusionService";
 
-/**
- * Scores and sorts dog matches based on the provided MatchScoringDTO.
- *
- * @param input - The MatchScoringDTO containing current dog ID, filtered dog IDs, user location, and optional filters.
- * @returns A sorted array of ScoredDog objects with their scores.
- */
-
+// This function scores and sorts dog matches based on the provided MatchScoringDTO.
+// It takes in a MatchScoringDTO object containing the current dog ID
+// filtered dog IDs, user location, and optional filters.
+// It returns a sorted array of ScoredDog objects with their scores.
 export const scoreAndSortMatches = async (input: matchScoringDTO): Promise<ScoredDog[]> => {
   const { filteredDogIds, userLocation, filters } = input;
-
   const DISTANCE_WEIGHT = 5; // Weight for distance scoring
   const maxDistance = filters?.maxDistanceInKm ?? 60;
 
   // Log the received filters for debugging
   console.log("🔍 Received Filters:", JSON.stringify(filters, null, 2));
 
-  // Step 1: Fetch current dog and candidate dogs
-  const candidates = await getDogsByIds(filteredDogIds);
+  // --- server-side exclusions ---
+  const serverExcluded = input.currentDogId?.id ?
+    await getExcludedDogIdsForDog(input.currentDogId.id) :
+    new Set<string>();
+  const clientExcluded = new Set(input.excludedDogIds ?? []);
+  const excludedAll = new Set([...serverExcluded, ...clientExcluded]);
 
-  // Step 2: Apply hard filters before scoring
+  console.log("🚫 Server excluded dog IDs:", Array.from(serverExcluded));
+  console.log("🚫 Client excluded dog IDs:", Array.from(clientExcluded));
+  console.log("🚫 Total excluded dog IDs:", Array.from(excludedAll));
+  console.log("✅ Original filtered dog IDs:", filteredDogIds.length);
+
+  // Remove excluded ids up front
+  const candidateIds = filteredDogIds.filter((id) => !excludedAll.has(id));
+  console.log(`📊 After exclusions: ${candidateIds.length} dogs remaining`);
+
+  if (candidateIds.length === 0) return [];
+
+  // Step 1: Fetch remaining candidates (after exclusions)
+  const candidates = await getDogsByIds(candidateIds);
+
+  // Step 2: Hard filters (gender/age/etc.)
   const filteredCandidates = candidates.filter((candidate) =>
     passesHardFilters(candidate, filters)
   );
 
-  // Step 3: Batch fetch user coordinates for all candidate dogs
-  const coordinateMap = await getDogCoordinatesByIds(filteredDogIds);
+  // Step 3: Fetch coordinates for the remaining candidate set
+  const coordinateMap = await getDogCoordinatesByIds(filteredCandidates.map((c) => c.id));
 
   // step 4: score and sort
   const scored: ScoredDog[] = filteredCandidates.map((candidate) => {
@@ -78,7 +97,6 @@ export const scoreAndSortMatches = async (input: matchScoringDTO): Promise<Score
       console.log(`🐾 ${candidate.name}'s triggers:`, candidate.behavior?.triggersAndSensitivities);
 
       if (
-        // the value is an array and the filter is also an array
         // using Array.isArray to ensure we don't get errors if they are not arrays
         Array.isArray(candidate.behavior?.triggersAndSensitivities) &&
         Array.isArray(filters.selectedTriggerTags)
