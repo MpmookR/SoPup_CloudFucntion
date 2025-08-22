@@ -16,7 +16,6 @@ export const createMatchRequest = async (
   const db = admin.firestore();
   const collection = db.collection(COLLECTION);
 
-  // Consider “active” statuses that should block re-creation
   const activeStatuses = ["pending", "accepted"];
 
   // A -> B

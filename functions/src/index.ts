@@ -9,6 +9,7 @@ import chatRoutes from "./controllers/chatController";
 import meetupRoutes from "./controllers/meetupController";
 import reviewRoutes from "./controllers/reviewController";
 import dogRoutes from "./controllers/dogModeController";
+import userProfileRoutes from "./controllers/userProfileController";
 
 // dev testing routes
 // import devRoutes from "./controllers/devController";
@@ -29,6 +30,7 @@ app.use("/chat", chatRoutes);
 app.use("/meetups", meetupRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/dogs", dogRoutes);
+app.use("/profile", userProfileRoutes);
 
 // dev testing routes
 // app.use("/dev", devRoutes);

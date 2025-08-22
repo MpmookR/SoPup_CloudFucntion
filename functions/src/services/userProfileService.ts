@@ -1,4 +1,8 @@
-import { getDogById, updateDog } from "../repositories/dogRepository";
+import {
+  getDogById,
+  updateDog,
+  updateDogHealthStatus as repoUpdateDogHealthStatus,
+} from "../repositories/dogRepository";
 import { getUserById, updateUser } from "../repositories/userRepository";
 import { convertDatesToISO, normalizeDob } from "../helper/convertDatesToISO";
 
@@ -142,4 +146,45 @@ export const updateDogImages = async (
   console.log(`   - Number of images: ${updatedDog.imageURLs.length}`);
 
   return convertDatesToISO(updatedDog);
+};
+
+// Update dog health status
+export const updateHealthStatus = async (
+  dogId: string,
+  health: {
+    fleaTreatmentDate?: Date | string;
+    wormingTreatmentDate?: Date | string;
+  }
+): Promise<{ dog: any }> => {
+  // 1) Load current dog
+  const currentDog = await getDogById(dogId);
+  if (!currentDog) throw new Error("Dog not found");
+
+  // 2) Normalize inputs (keeps parity with vaccination flow)
+  const patch: {
+    fleaTreatmentDate?: Date | string;
+    wormingTreatmentDate?: Date | string;
+  } = {};
+
+  if (health.fleaTreatmentDate) {
+    patch.fleaTreatmentDate =
+      normalizeDob(health.fleaTreatmentDate) || health.fleaTreatmentDate;
+  }
+  if (health.wormingTreatmentDate) {
+    patch.wormingTreatmentDate =
+      normalizeDob(health.wormingTreatmentDate) || health.wormingTreatmentDate;
+  }
+
+  if (!patch.fleaTreatmentDate && !patch.wormingTreatmentDate) {
+    throw new Error("At least one health field must be provided");
+  }
+
+  // 3) Patch update via repository (dot-path; no overwrites)
+  await repoUpdateDogHealthStatus(dogId, patch);
+
+  // 4) Return updated dog
+  const updatedDog = await getDogById(dogId);
+  if (!updatedDog) throw new Error("Failed to retrieve updated dog data");
+
+  return { dog: convertDatesToISO(updatedDog) };
 };

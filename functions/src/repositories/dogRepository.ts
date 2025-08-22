@@ -71,3 +71,27 @@ export const updateDogVaccinations = async (
 ): Promise<void> => {
   await dogsCollection.doc(dogId).update(vaccinations);
 };
+
+export const updateDogHealthStatus = async (dogId: string, health: {
+  fleaTreatmentDate?: Date | string;
+  wormingTreatmentDate?: Date | string;
+}) => {
+  const patch: Record<string, any> = {};
+  if (health.fleaTreatmentDate) {
+    patch["healthStatus.fleaTreatmentDate"] =
+      typeof health.fleaTreatmentDate === "string" ?
+        new Date(health.fleaTreatmentDate) :
+        health.fleaTreatmentDate;
+  }
+  if (health.wormingTreatmentDate) {
+    patch["healthStatus.wormingTreatmentDate"] =
+      typeof health.wormingTreatmentDate === "string" ?
+        new Date(health.wormingTreatmentDate) :
+        health.wormingTreatmentDate;
+  }
+  if (Object.keys(patch).length === 0) {
+    throw new Error("No health fields provided");
+  }
+  await admin.firestore().collection("dogs").doc(dogId).update(patch);
+};
+

@@ -151,5 +151,9 @@ export const scoreAndSortMatches = async (input: matchScoringDTO): Promise<Score
   });
 
   // Step 3: sorts the array of ScoredDog objects in descending order of their score
-  return scored.filter((dog) => dog.score > 0).sort((a, b) => b.score - a.score);
+  // exclude 0 score user
+  // return scored.filter(dog => dog.score > 0).sort((a, b) => b.score - a.score);
+
+  // include 0 score user
+  return scored.filter((dog) => dog.score >= 0).sort((a, b) => b.score - a.score);
 };

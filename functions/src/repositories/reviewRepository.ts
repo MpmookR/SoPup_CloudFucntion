@@ -10,7 +10,10 @@ export const addReview = async (review: Review): Promise<void> => {
   await reviewsCollection.doc(review.id).set(review);
 };
 
-export const getReviewsByMeetupAndReviewer = async (meetupId: string, reviewerId: string): Promise<Review | null> => {
+export const getReviewsByMeetupAndReviewer = async (
+  meetupId: string,
+  reviewerId: string
+): Promise<Review | null> => {
   const snapshot = await reviewsCollection
     .where("meetupId", "==", meetupId)
     .where("reviewerId", "==", reviewerId)

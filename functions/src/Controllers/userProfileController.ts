@@ -5,6 +5,7 @@ import {
   updateDogProfile,
   updateDogBehaviorProfile,
   updateDogImages,
+  updateHealthStatus,
 } from "../services/userProfileService";
 import { getDogOwnerIdById } from "../repositories/dogRepository";
 
@@ -237,6 +238,38 @@ router.put("/dog/:dogId/images", authenticate, async (req: Request, res: Respons
   } catch (error: any) {
     console.error("❌ Failed to update dog images:", error.message);
     return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+});
+
+// PUT /profile/dog/:dogId/health
+// Update dog health status (flea and worming treatment dates)
+router.put("/dog/:dogId/health", authenticate, async (req, res) => {
+  console.log("✅ PUT /profile/dog/:dogId/health hit");
+  const { dogId } = req.params;
+  const userId = (req as any).user?.uid;
+  const { fleaTreatmentDate, wormingTreatmentDate } = req.body;
+
+  if (!dogId) return res.status(400).json({ error: "Dog ID is required" });
+  if (!fleaTreatmentDate && !wormingTreatmentDate) {
+    return res.status(400).json({ error: "At least one treatment date must be provided" });
+  }
+
+  try {
+    const dogOwnerId = await getDogOwnerIdById(dogId);
+    if (!dogOwnerId) return res.status(404).json({ error: "Dog not found" });
+    if (dogOwnerId !== userId) {
+      return res.status(403).json({ error: "You can only update your own dog's health" });
+    }
+
+    const { dog } = await updateHealthStatus(dogId, { fleaTreatmentDate, wormingTreatmentDate });
+
+    return res.status(200).json({
+      message: "Dog health status updated successfully",
+      dog,
+    });
+  } catch (err: any) {
+    console.error("❌ Failed to update dog health:", err.message);
+    return res.status(500).json({ error: err.message || "Internal server error" });
   }
 });
 

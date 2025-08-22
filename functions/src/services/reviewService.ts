@@ -96,8 +96,7 @@ export const fetchUserReviews = async (userId: string) => {
 export const fetchUserReviewsWithDogInfo = async (userId: string): Promise<ReviewWithDogInfo[]> => {
   const reviews = await getReviewsByUserId(userId);
 
-  // Enhance reviews with dog names and profile pictures
-  const enhancedReviews = await Promise.all(
+  const enhanced = await Promise.all(
     reviews.map(async (review) => {
       let reviewerDogName: string | undefined;
       let revieweeDogName: string | undefined;
@@ -105,42 +104,36 @@ export const fetchUserReviewsWithDogInfo = async (userId: string): Promise<Revie
       let revieweeDogImage: string | undefined;
 
       try {
-        // Get meetup to find dog IDs
         const meetup = await getMeetupById(review.meetupId);
         if (meetup) {
-          // Get dog names and images in one fetch
-          const reviewerDog = await getDogById(meetup.senderDogId);
-          const revieweeDog = await getDogById(meetup.receiverDogId);
+          // Determine which dog belongs to reviewer/reviewee
+          const reviewerDogId =
+            review.reviewerId === meetup.senderId ? meetup.senderDogId : meetup.receiverDogId;
 
-          console.log(
-            `🐕 Reviewer dog: ${reviewerDog?.name || "Unknown"} (ID: ${meetup.senderDogId})`
-          );
-          console.log(
-            `🐕 Reviewee dog: ${revieweeDog?.name || "Unknown"} (ID: ${meetup.receiverDogId})`
-          );
+          const revieweeDogId =
+            review.revieweeId === meetup.senderId ? meetup.senderDogId : meetup.receiverDogId;
+
+          const [reviewerDog, revieweeDog] = await Promise.all([
+            getDogById(reviewerDogId),
+            getDogById(revieweeDogId),
+          ]);
+
+          console.log(`🐕 Reviewer dog: ${reviewerDog?.name ?? "Unknown"} (ID: ${reviewerDogId})`);
+          console.log(`🐕 Reviewee dog: ${revieweeDog?.name ?? "Unknown"} (ID: ${revieweeDogId})`);
 
           reviewerDogName = reviewerDog?.name;
           revieweeDogName = revieweeDog?.name;
-          reviewerDogImage = reviewerDog?.imageURLs?.[0]; // First image
-          revieweeDogImage = revieweeDog?.imageURLs?.[0]; // First image
+          reviewerDogImage = reviewerDog?.imageURLs?.[0];
+          revieweeDogImage = revieweeDog?.imageURLs?.[0];
         }
       } catch (error) {
-        console.warn(`❌ Failed to fetch enhanced info for review ${review.id}:`, error);
+        console.warn(`❌ Failed to enrich review ${review.id}:`, error);
       }
 
-      return {
-        ...review,
-        reviewerDogName,
-        revieweeDogName,
-        reviewerDogImage,
-        revieweeDogImage,
-      };
+      return { ...review, reviewerDogName, revieweeDogName, reviewerDogImage, revieweeDogImage };
     })
   );
 
-  console.log(
-    `✅ Fetched ${enhancedReviews.length} enhanced reviews with dog images for user ${userId}`
-  );
-
-  return enhancedReviews;
+  console.log(`✅ Fetched ${enhanced.length} enhanced reviews with dog images for user ${userId}`);
+  return enhanced;
 };
