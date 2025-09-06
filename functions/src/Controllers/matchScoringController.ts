@@ -20,7 +20,7 @@ router.post("/score", authenticate, async (req: Request, res: Response) => {
     // Convert Timestamps to ISO strings (safe conversion)
     const safeResult = result.map((scoredDog) => {
       return {
-        ...scoredDog,
+        ...scoredDog, // Copy all properties of scoredDog (score, dog, etc.)
         dog: convertDatesToISO(scoredDog.dog), // Convert dog object dates to ISO strings
       };
     });

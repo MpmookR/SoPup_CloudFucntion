@@ -31,5 +31,5 @@ export function getDistance(coord1: Coordinate, coord2: Coordinate): number {
 
   // Calculate the distance
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return R * c; // Distance in kilometers
 }

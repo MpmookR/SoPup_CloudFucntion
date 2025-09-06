@@ -7,7 +7,7 @@ import {
   getPreferredAgeScore,
   passesHardFilters,
 } from "../helper/matchHelper";
-import { normalizeDob } from "../helper/convertDatesToISO";
+import { normalizeDob } from "../helper/dateUtils";
 import { getExcludedDogIdsForDog } from "./matchExclusionService";
 
 // This function scores and sorts dog matches based on the provided MatchScoringDTO.

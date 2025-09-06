@@ -1,3 +1,16 @@
+/**
+ *
+ * Entry point for the serverless backend.
+ *
+ * Key Responsibilities:
+ * - Configure middleware (CORS, JSON parsing)
+ * - Register feature routes (match requests, scoring, chat, meetups, reviews, dogs, profiles)
+ * - Optionally expose dev testing routes
+ * - Export the app as a Firebase HTTPS Function (2nd Gen)
+ *
+ * Usage:
+ * Deploys to Firebase Cloud Functions. Invoked at /api/* with all routes mounted.
+ */
 import express from "express";
 import { onRequest } from "firebase-functions/v2/https";
 import cors from "cors";
@@ -16,7 +29,7 @@ import userProfileRoutes from "./controllers/userProfileController";
 
 console.log("🔥 Starting full Express app...");
 
-// Express app
+// Express app setup
 const app = express();
 app.use(cors(corsConfig));
 app.use(express.json());

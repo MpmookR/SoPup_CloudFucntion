@@ -4,7 +4,8 @@ import {
   updateDogHealthStatus as repoUpdateDogHealthStatus,
 } from "../repositories/dogRepository";
 import { getUserById, updateUser } from "../repositories/userRepository";
-import { convertDatesToISO, normalizeDob } from "../helper/convertDatesToISO";
+import { convertDatesToISO } from "../helper/convertDatesToISO";
+import { normalizeDob } from "../helper/dateUtils";
 
 // Update user profile (name, bio, location, etc.)
 export const updateUserProfile = async (

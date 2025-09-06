@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as admin from "firebase-admin";
 
 const useMock = process.env.USE_MOCK_AUTH === "true";
-
+// Enable mock authentication for testing
 export const authenticate = async (
   req: Request,
   res: Response,
@@ -17,9 +17,12 @@ export const authenticate = async (
     return next();
   }
 
+  // Real authentication flow
+  // Validate and verify the incoming token
   const authHeader = req.headers.authorization;
   console.log("🔐 Incoming Auth Header:", authHeader);
 
+  // Extract token from header
   const token = authHeader?.split("Bearer ")[1];
 
   if (!token) {

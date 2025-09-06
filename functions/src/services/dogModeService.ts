@@ -1,7 +1,8 @@
 import { DogMode } from "../models/config";
 import { Dog } from "../models/Dog";
 import { getDogById, updateDog, updateDogVaccinations } from "../repositories/dogRepository";
-import { convertDatesToISO, normalizeDob } from "../helper/convertDatesToISO";
+import { convertDatesToISO } from "../helper/convertDatesToISO";
+import { normalizeDob } from "../helper/dateUtils";
 
 // Update dog vaccination dates and check readiness for mode switch
 export const updateVaccinations = async (
